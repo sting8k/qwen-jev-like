@@ -19,3 +19,7 @@ backends/llamacpp/fork_worker
 # per-set README (protocol + hashes) so a rebuild can be checked against it.
 data/raw/
 data/calib/**/*.jsonl
+
+# upstream latency presets: fetched and hash-verified by
+# data/build/fetch_bench_presets.py, never vendored (someone else's work)
+reference/

@@ -1,8 +1,8 @@
-"""Tier-1 triage builder — HackerOne disclosed reports -> data/raw/tier1/*.jsonl
+"""Bug-report classification builder — HackerOne disclosed reports -> data/raw/bugreport_cls/*.jsonl
 
 Contract: docs/briefs/TIER1_TRIAGE_DATA_BRIEF.md §4 ("Chốt sau khảo sát").
 Biscuit approved 2026-09-22; user approved the same day at **n=300** (not 600).
-Survey evidence: reports/tier1_triage_candidates.md, @event.2026-09-22-tier1-triage-survey.
+Survey evidence: the dataset survey in the research repository.
 
 What the label is: `substate` is the decision a real triager recorded on this
 report. Not derived, not LLM. Severity is only a triager decision when
@@ -10,14 +10,14 @@ report. Not derived, not LLM. Severity is only a triager decision when
 own bug, so those rows get no severity question.
 
 Licence posture (§4.6): the report text is copyright of the finder. This set is
-MEASURE-ONLY. The JSONL lands in data/raw/tier1/ which is gitignored; what gets
+MEASURE-ONLY. The JSONL lands in data/raw/bugreport_cls/ which is gitignored; what gets
 committed is this builder plus the manifest of report ids (ids and labels are
 facts about public records, not the creative text).
 robots.txt has no Disallow and a keyword scan of the General T&C and /terms
 found no anti-scraping clause, but no acceptable-use page was reachable:
 **"không thấy cấm, chưa xác nhận được phép"**.
 
-Run (no GPU, ~2 min at REQ_SLEEP=0.2):  .venv-data/bin/python data/build/phase3_build_tier1_triage.py
+Run (no GPU, ~2 min at REQ_SLEEP=0.2):  .venv-data/bin/python data/build/phase3_build_bugreport_cls.py
 Re-runs reuse the on-disk report cache, so the fetch happens once.
 """
 import json
@@ -34,10 +34,10 @@ from transformers import AutoTokenizer
 # repo root: this file lives in data/build/, so two levels up (same as the
 # phase3_build_* builders -- moving this file means fixing this line).
 ROOT = Path(__file__).resolve().parents[2]
-RAW = ROOT / "data" / "raw" / "tier1"          # gitignored: cache + output JSONL
+RAW = ROOT / "data" / "raw" / "bugreport_cls"          # gitignored: cache + output JSONL
 CACHE = RAW / "reports"
-OUT = RAW / "tier1_triage_300.jsonl"
-MANIFEST = ROOT / "data" / "build" / "tier1_triage_manifest.json"  # committed
+OUT = RAW / "bugreport_cls_300.jsonl"
+MANIFEST = ROOT / "data" / "build" / "bugreport_cls_manifest.json"  # committed
 
 SEED = 42
 UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -316,24 +316,24 @@ def main():
                 "report_id": rid,
                 "seed": SEED,
             }
-            rows.append({**base, "id": f"tier1-{rid}-is_valid", "qtype": "noul",
+            rows.append({**base, "id": f"bugreport-{rid}-is_valid", "qtype": "noul",
                          "question_key": "is_valid",
                          "question_desc": "The security team accepted this report as a real, "
                                           "actionable vulnerability and resolved it.",
                          "label": outcome == "resolved"})
-            rows.append({**base, "id": f"tier1-{rid}-outcome", "qtype": "choice",
+            rows.append({**base, "id": f"bugreport-{rid}-outcome", "qtype": "choice",
                          "question_key": "outcome",
                          "question_desc": "The triage decision the program recorded for this report.",
                          "options": ["informative", "not_applicable", "resolved", "spam"],
                          "label": outcome})
             if fam:
-                rows.append({**base, "id": f"tier1-{rid}-weakness", "qtype": "choice",
+                rows.append({**base, "id": f"bugreport-{rid}-weakness", "qtype": "choice",
                              "question_key": "weakness",
                              "question_desc": "The weakness family the security team assigned.",
                              "options": None,  # filled once the set is known
                              "label": fam, "weakness_raw": wk_name})
             if sev_author == "Team" and sev_rating in SEVERITY_OPTS:
-                rows.append({**base, "id": f"tier1-{rid}-severity", "qtype": "choice",
+                rows.append({**base, "id": f"bugreport-{rid}-severity", "qtype": "choice",
                              "question_key": "severity",
                              "question_desc": "The severity band the security team assigned.",
                              "options": SEVERITY_OPTS, "label": sev_rating})

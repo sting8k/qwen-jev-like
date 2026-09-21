@@ -1,0 +1,48 @@
+name: cpu tests
+
+# The gate is the same file a contributor runs locally: no GPU, no model
+# weights, no dataset. It downloads one tokenizer (~22 MB of vocabulary, no
+# weights) and checks its fingerprint before trusting any result, because every
+# assertion in it is about where token boundaries fall.
+#
+# vLLM is installed despite this being a CPU job: core/jev_engine.py imports
+# SamplingParams at module scope, so the engine cannot be imported without it.
+# That is a ~2.5 GB install for two symbols, and it is the reason this workflow
+# is minutes rather than seconds. Moving that construction behind the backend
+# boundary would remove the dependency for every CPU consumer; it is a change to
+# the engine that produced the published numbers, so it is not made casually.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  cpu-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: install
+        run: |
+          python -m pip install --upgrade pip
+          pip install "transformers>=4.57" "huggingface_hub>=0.35" vllm
+
+      - name: cache tokenizer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-tokenizer-qwen3.5-9b
+
+      - name: cpu gate
+        run: python -m tests.test_cpu
+
+      - name: upstream bench presets fetch and verify
+        run: python data/build/fetch_bench_presets.py

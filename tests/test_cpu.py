@@ -1,20 +1,64 @@
 """CPU-only tests for JevEngine: tokenizer behaviour, trie routing, contract shapes,
-and the llama.cpp backend's slot planner. No GPU, no model weights, no network
-(the tokenizer is the only download, and HF_HUB_OFFLINE=1 uses the local cache).
+and the llama.cpp backend's slot planner. No GPU and no model weights.
 
     python -m tests.test_cpu
 
 Run it as a module from the repository root. By file path, sys.path[0] becomes
 tests/ and `core` stops being importable.
 
+It does need a tokenizer, which is the one thing here that can touch the
+network: with no local checkout and no cache, `AutoTokenizer` fetches ~22 MB of
+vocabulary from TOKENIZER_ID -- no weights. Set HF_HUB_OFFLINE=1 to forbid that
+and use only what is already on disk.
+
+Every result below is tokenizer-specific: these are assertions about where token
+boundaries fall. So the tokenizer is fingerprinted and the fingerprint is
+checked, and the run prints which tokenizer it loaded. A different one fails
+loudly instead of quietly testing a different question.
+
 Checks that need a dataset which this repository does not ship report SKIP and
 say why; a skip is counted and printed separately, never as a pass.
 """
 
+import hashlib
+import json
+import os
 import sys
 
 
 from core.fake_llm import FakeLLM  # prompt-seeded: sees cross-state routing bugs
+
+# Upstream vocabulary for the checkpoint this harness was measured on. Apache-2.0,
+# and only the tokenizer files are fetched -- no weights.
+TOKENIZER_ID = "Qwen/Qwen3.5-9B"
+
+# Token boundaries are the subject of these tests, so the vocabulary is pinned by
+# fingerprint rather than by trust: vocab size plus the ids of probes that every
+# assertion below depends on (the noul suffix, digits, colliding option keys).
+FINGERPRINT = "4ba4dbcd1fab5671"
+FP_PROBES = ['  "q": "', ' true', ' false', '0123456789', 'CWE_327_BROKEN_CRYPTO',
+             '{\n  ', 'BLOCK_IMMEDIATELY', '"\n', 'very negative', '  "risk_level": ']
+
+
+def tokenizer_fingerprint(tok) -> str:
+    ids = [tok.encode(p, add_special_tokens=False) for p in FP_PROBES]
+    blob = json.dumps({"v": len(tok), "ids": ids}, sort_keys=True).encode()
+    return hashlib.sha256(blob).hexdigest()[:16]
+
+
+def load_tokenizer():
+    """Local checkout if there is one, else the upstream vocabulary.
+
+    Returns (tokenizer, source). A clone has no models/ directory, so falling
+    back is the normal path, not an error case.
+    """
+    from transformers import AutoTokenizer
+
+    from core.jev_engine import MODEL_PATH
+
+    src = os.environ.get("JEV_TOKENIZER") or (
+        MODEL_PATH if os.path.isdir(MODEL_PATH) else TOKENIZER_ID)
+    return AutoTokenizer.from_pretrained(src), src
 
 
 # --- Cloudflare docs example question sets (contract fixtures) ---
@@ -60,11 +104,9 @@ CF_ROUTE = {
 
 
 def main() -> int:
-    from transformers import AutoTokenizer
+    from core.jev_engine import JevEngine
 
-    from core.jev_engine import JevEngine, MODEL_PATH
-
-    tok = AutoTokenizer.from_pretrained(MODEL_PATH)
+    tok, tok_src = load_tokenizer()
     failures = []
     skipped = []
     n_ok = 0
@@ -81,6 +123,14 @@ def main() -> int:
     def skip(name, why):
         print(f"  [SKIP] {name} -- {why}")
         skipped.append(name)
+
+    print(f"== 0. tokenizer: {tok_src} ==")
+    fp = tokenizer_fingerprint(tok)
+    check(f"vocabulary is the one these assertions were written against "
+          f"({len(tok)} tokens, fp {fp})", fp == FINGERPRINT,
+          "" if fp == FINGERPRINT else
+          f"expected {FINGERPRINT}; token boundaries differ, so every result "
+          f"below would be about a different vocabulary")
 
     print("== 1. Biscuit trap #3: noul position (space merges into ' true') ==")
     fake = FakeLLM()
@@ -496,13 +546,9 @@ def test_window_oracle() -> bool:
     option, across every shipped bench preset plus the sanity question sets.
     Slow is fine here -- this is a correctness oracle, not a runtime measure.
     It prints the number of options and cases it actually covered."""
-    import json
+    from core.jev_engine import JevEngine, QSpec
 
-    from transformers import AutoTokenizer
-
-    from core.jev_engine import JevEngine, MODEL_PATH, QSpec
-
-    tok = AutoTokenizer.from_pretrained(MODEL_PATH)
+    tok, _ = load_tokenizer()
 
     class _NoLLM:
         # the oracle only builds prompts, but padding needs a block size and the

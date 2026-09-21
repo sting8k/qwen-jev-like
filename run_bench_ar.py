@@ -113,7 +113,7 @@ def main() -> int:
 
     report = {}
     for name in presets:
-        d = json.load(open(f"reference/harshatheg-rlcd/presets/{name}.json"))
+        d = json.load(open(f"reference/presets/{name}.json"))
         context, schema = d["context"], d["schema"]
         questions = map_schema_to_questions(schema)
         print(f"\n=== {name}: {len(questions)} fields ===", flush=True)

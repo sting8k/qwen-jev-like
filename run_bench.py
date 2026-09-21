@@ -48,7 +48,7 @@ def main() -> int:
     presets = ["fintech_fraud", "code_security", "support_triage", "high_cardinality_255"]
     report = {}
     for name in presets:
-        d = json.load(open(f"reference/harshatheg-rlcd/presets/{name}.json"))
+        d = json.load(open(f"reference/presets/{name}.json"))
         context, schema = d["context"], d["schema"]
         questions = map_schema_to_questions(schema)
         states = state_variants(context)
