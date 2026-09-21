@@ -32,21 +32,15 @@ comes from, run the matching builder in `build/`, and compare the hash.
 | h5 | transaction labels | CC-BY-SA-4.0 | yes |
 | h6 | multi-field choice | CC-BY-SA-4.0 | yes |
 | h7 | emotion labels | card says `other` | yes |
-| h8 | CVSS v3.1 metric prediction | CC-BY-NC-SA-4.0 | **no — see below** |
-| bugreport_cls | bug-report classification, 12 weakness families | reports belong to their finders | **no — see below** |
+| h8 | CVSS v3.1 metric prediction | CC-BY-NC-SA-4.0 | yes |
+| bugreport_cls | bug-report classification, 12 weakness families | reports belong to their finders | yes |
 
-The last two ship a builder whose docstring carries the licence and the
-provenance, but not the per-set README the others have. That is a gap, and it is
-written here rather than smoothed over: the table above would otherwise read as
-if every set were documented to the same standard.
-
-`bugreport_cls` has a second wrinkle worth stating. The builder was renamed
-during publication and its row ids changed with it (`bugreport-<id>-<question>`),
-so **a rebuild today does not hash to the file the published numbers were
-measured on** — the contents differ by exactly that prefix. The counts are
-unaffected: 300 reports, 991 rows. No digest is recorded for it here, because
-the only digest that has actually been measured belongs to the file with the
-old ids, and recording that one would invite a comparison that must fail.
+One digest in that set is **derived rather than measured**, and its README says
+so: the bug-report builder was renamed during publication and its row ids
+changed with it, so the recorded digest is what applying exactly that rename to
+the measured corpus produces, not the output of a builder run. The two files
+differ in 991 ids and 3964 bytes and in nothing else — same 300 reports, same
+991 rows, same labels.
 
 `build/bugreport_cls_manifest.json` is committed and carries, per report, the
 labels, the weakness family, whether an attachment was present, and whether the

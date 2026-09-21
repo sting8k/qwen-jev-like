@@ -1,31 +1,29 @@
-# H6 — Bộ probe thiên vị (diagnostics, KHÔNG dùng cho FIT/SELECT/TEST)
+# h6 — diagnostic probes
 
-Mọi dòng có `probe: true` — Dax loại khỏi chia split calib, chỉ dùng chẩn đoán tật model. Sinh deterministic seed 42: `.venv-data/bin/python data/build/phase3_build_h5h6.py` (build content_free/permutation/label_name; vi cần `vi_translations.json` đã có).
+Rows built to expose specific failure modes: answering with no content at all, the same question under permuted option order, and letter-only labels.
 
-## content_free.jsonl — 150 dòng (50 câu × 3 biến thể state)
-- 50 câu choice lấy từ banking77.jsonl (seed 42) — options + label giữ nguyên.
-- State bị thay bằng: `N/A` / chuỗi rỗng / đoạn lorem ipsum (`variant: na|empty|lorem`).
-- Mục đích: đo **prior bẩm sinh** cho mỗi option khi không có bằng chứng — nền để "trừ prior" cho kết quả thật. `group_id` = group của câu gốc.
+| | |
+|---|---|
+| Source | [allenai/ai2_arc](https://huggingface.co/datasets/allenai/ai2_arc) config ARC-Challenge split `test`; the Vietnamese rows are machine-translated BoolQ |
+| Licence | CC-BY-SA-4.0 |
+| Label source | human (ARC, BoolQ); the translation is machine-produced and recorded as such |
+| Rows | 150 content_free · 400 permutation_arc · 100 label_name_arc · 100 label_name_arc_v2 · 50 vi_boolq |
+| Split | **none** — every row is `probe: true` and is excluded from FIT, SELECT and TEST |
 
-## permutation_arc.jsonl — 400 dòng (100 câu ARC-Challenge × 4 hoán vị)
-- Source: [allenai/ai2_arc](https://huggingface.co/datasets/allenai/ai2_arc) config ARC-Challenge split test · License: **CC-BY-SA-4.0** (chốt Biscuit 19:39 — thay MMLU vì license murky).
-- 100 câu 4-option (lọc sẵn), `perm_id: 0..3` theo 4 hoán vị cố định [(0,1,2,3), (3,2,1,0), (1,3,0,2), (2,0,3,1)].
-- **Options giữ NGUYÊN VĂN text đáp án** (không A/B/C/D) — đo position bias thuần: cùng câu, đúng-sai chỉ đổi chỗ.
-- `group_id = arc-XXX` (câu gốc) — so 4 dòng cùng group. `known_benchmark: true`.
+Rebuild, from the repository root:
 
-## label_name_arc_v2.jsonl — 100 dòng (cùng 100 câu ARC, options A/B/C/D + MAPPING) — [THAY label_name_arc.jsonl]
-- **Bản v1 (label_name_arc.jsonl) LỖI THIẾT KẾ, bỏ dùng** (Dax 20:22 + Biscuit 20:23): options là chữ cái nhưng state không có bảng ánh xạ A→nội dung → model không thể biết chữ cái nghĩa gì, accuracy 0.300 ≈ chance, probe không đo được letter bias. File v1 giữ trên đĩa (frozen) chỉ làm bằng chứng.
-- **v2**: state = câu hỏi + bảng ánh xạ MMLU chuẩn `A. <text đáp án>` đủ 4 dòng, **thứ tự A–D khớp đúng permutation perm_id=0** (đã assert: group_ids/questions/option-order/label-mapping khớp 100%) → so "chấm text đáp án" vs "chấm chữ cái trên cùng nội dung" = đo chi phí của lớp indirection thuần.
-- Validate mới (rule chung từ lỗi này): qtype choice với options trừu tượng (A/B/C/D) → state PHẢI chứa mapping đầy đủ cho mọi option; check chạy trong builder.
-- `group_id` trùng permutation (arc-XXX).
+```sh
+python data/build/phase3_build_h5h6.py
+```
 
-## vi_boolq.jsonl — 50 dòng (stretch tiếng Việt)
-- 50 câu BoolQ có passage ngắn nhất (50–73 token) — state + question **dịch máy sang tiếng Việt** (`machine_translated: true`, dịch bởi agent Gizmo, lưu `vi_translations.json` để audit).
-- **Nhãn giữ nguyên 100% từ bản tiếng Anh** (đã assert khớp 0 mismatch) — probe đo sự sập xác suất khi đổi ngôn ngữ, không đo calib vs nhãn mới.
-- `group_id` = id BoolQ gốc (link về bản English). `lang: vi`.
+SHA-256 of the rebuilt files:
 
-## Cách đọc kết quả (ghi chú cho Dax)
-- Content-free: argmax(options) với state trống = prior; kỳ vọng model tốt cho prior gần đều; prior lệch lớn → khử trước khi tin probability thấp.
-- Permutation: label đúng phải giữ xác suất cao ở mọi perm_id; drop xác suất khi đáp án đổi vị trí = position bias.
-- Label-name: so phân phối giữa text-option và letter-option cùng câu → letter bias.
-- VI: so noul probability với bản EN cùng group_id → language shift degradation.
+```
+d93021800bc333f0ec8e49b02480f03da6d74405d5c274501f4cbf4f583ceb5f  content_free.jsonl
+ff6305e91cbaa120cd9c309956b64507197e20e2c506ab6b1920022c6ff166b4  permutation_arc.jsonl
+081a270d37c0eb2b742d016ca13ab8da27adbfeed6ded9ba57bd0448e600ebd7  label_name_arc.jsonl
+d1bda67f93cfd20caf21e65a2462bf5de54e3c371eba6b70f352c2d93f0d24cf  label_name_arc_v2.jsonl
+e722bf2ea2e7aebba6e8be6882b679516224fcd077ecc7aacd6df923a4532282  vi_boolq.jsonl
+```
+
+**Reading the numbers.** These rows never enter a fit or a test set; they diagnose the model, they do not score it. `label_name_arc.jsonl` presents options as bare letters with no mapping in the state, so nothing can identify what a letter means and its accuracy sits at chance — `_v2` carries the mapping and is the one to use. The first file is kept because published numbers refer to it.
