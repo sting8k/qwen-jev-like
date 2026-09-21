@@ -32,7 +32,31 @@ import os
 import math
 import time
 
-from vllm import LLM, SamplingParams
+try:
+    from vllm import LLM, SamplingParams
+except ImportError:
+    # vLLM is optional. The default path is the llama.cpp fork, which reads
+    # these objects by attribute and never touches the class, so a stand-in is
+    # enough to keep one code path for both backends. When vLLM is installed
+    # the real classes are used, so nothing about the vLLM numbers changes.
+    LLM = object
+
+    class SamplingParams:
+        """Attribute bag with vLLM 0.29's defaults for the fields read here.
+
+        The defaults matter as much as the fields: a backend asks for
+        `logprob_token_ids` on every request and gets None when the caller did
+        not set one, so a bag that only holds what was passed raises
+        AttributeError on the first scored node instead.
+        """
+
+        _DEFAULTS = {"max_tokens": 16, "temperature": 1.0, "detokenize": True,
+                     "logprobs": None, "logprob_token_ids": None,
+                     "extra_args": None}
+
+        def __init__(self, **kw):
+            self.__dict__.update(self._DEFAULTS)
+            self.__dict__.update(kw)
 
 MAX_IDS_PER_REQUEST = 128
 NODE_BUDGET = 64

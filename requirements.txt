@@ -1,0 +1,9 @@
+# Python >= 3.10. The engine annotates with `str | None`, which is evaluated at
+# runtime, so 3.9 fails on import at QSpec rather than anywhere informative.
+#
+# Default path: the llama.cpp fork with a local GGUF. No vLLM, no CUDA Python
+# packages -- the fork is a C++ build described in backends/llamacpp/README.md.
+transformers>=4.57
+huggingface_hub>=0.35
+numpy>=1.26
+jinja2>=3.1          # transformers renders the chat template with it

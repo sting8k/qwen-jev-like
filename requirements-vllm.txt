@@ -1,0 +1,4 @@
+# Optional: the vLLM path, for the 9B AWQ checkpoint on an NVIDIA GPU.
+# Only needed to reproduce the numbers labelled "vLLM path" in docs/RESULTS.md.
+-r requirements.txt
+vllm==0.29.*
