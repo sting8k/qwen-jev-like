@@ -8,5 +8,5 @@ for their hosted typed-decision endpoint, captured 2026-09-18 against version
 this engine picks the same option, not whether it reports the same probability.
 
 Nothing else is kept here. The other vendors' documentation this project read
-while working out the contract is cited by URL in `docs/STORY.md` rather than
-copied.
+while working out the contract is cited under References in the README rather
+than copied.
