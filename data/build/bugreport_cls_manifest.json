@@ -1,5 +1,5 @@
 {
- "spec": "docs/briefs/TIER1_TRIAGE_DATA_BRIEF.md \u00a74",
+ "spec": "docs/PROTOCOL.md (bug-report classification)",
  "seed": 42,
  "n_states": 300,
  "n_rows": 991,

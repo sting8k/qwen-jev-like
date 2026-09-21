@@ -1,6 +1,6 @@
 """Bug-report classification builder — HackerOne disclosed reports -> data/raw/bugreport_cls/*.jsonl
 
-Contract: docs/briefs/TIER1_TRIAGE_DATA_BRIEF.md §4 ("Chốt sau khảo sát").
+Contract: docs/PROTOCOL.md (bug-report classification).
 Biscuit approved 2026-09-22; user approved the same day at **n=300** (not 600).
 Survey evidence: the dataset survey in the research repository.
 
@@ -356,12 +356,27 @@ def main():
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     MANIFEST.write_text(json.dumps(
-        {"spec": "docs/briefs/TIER1_TRIAGE_DATA_BRIEF.md §4", "seed": SEED,
+        {"spec": "docs/PROTOCOL.md (bug-report classification)", "seed": SEED,
          "n_states": sum(len(v) for v in chosen.values()), "n_rows": len(rows),
          "target": TARGET, "program_cap": PROGRAM_CAP, "max_words": MAX_WORDS,
          "index_totals": totals,
          "weakness_families": {k: v for k, v in WEAKNESS_FAMILIES},
-         "rows": manifest}, indent=1))
+         "rows": manifest,
+         # Which rule produced which count, recorded next to the flags rather
+         # than in prose: the two differ on 9 of 300 reports, and a table that
+         # filters on one of them while quoting the other's n is wrong while
+         # looking right. Counted from the rows above, never hardcoded.
+         "program_mentioned_rules": {
+             "program_mentioned": "word-boundary match of team handle in "
+                                  "title+body, handle length >= 3",
+             "program_mentioned_substr": "lowercased substring of team handle "
+                                         "anywhere in title+body (the rule "
+                                         "behind the 164/300 in brief 4.9a)",
+             "counts": {
+                 "strict": sum(1 for m in manifest if m["program_mentioned"]),
+                 "substr": sum(1 for m in manifest if m["program_mentioned_substr"]),
+                 "n": len(manifest)},
+         }}, indent=1))
 
     states = sum(len(v) for v in chosen.values())
     print(f"\nwrote {OUT}  states={states} rows={len(rows)}")

@@ -15,10 +15,11 @@ The two interactive scenario benches are the author's own design. This
 repository carries their **numbers and criteria** and nothing else: no world, no
 mechanics, no action names. `games/` and the scenario briefs were never copied.
 
-Expected: **0**. Known false positives if the pattern is widened: `proc.kill()`
-in `core/bonsai_llm.py` and `tests/test_cpu.py`, and `kill` in `gpu.sh` — process
-teardown, not scenario vocabulary. Read matches; a count alone cannot tell a
-leak from a method call.
+Expected: **1** — this file, which quotes the pattern. Run it with
+`-g '!GATES.md'` to expect 0. Known false positives if the pattern is widened:
+`proc.kill()` in `core/bonsai_llm.py` and `tests/test_cpu.py`, and `kill` in
+`gpu.sh` — process teardown, not scenario vocabulary. Read matches; a count
+alone cannot tell a leak from a method call.
 
 Three comments in the engine and the fork worker used to name that harness. They
 were reworded. Their technical content and every measurement in them
@@ -59,6 +60,7 @@ Current matches and why they stay:
 | `deploy` | `examples/langchain/*.md` | Verbatim snapshot of third-party documentation, kept as an upstream record. |
 | `analyst` | `data/build/phase3_build_h8_ctivsp.py`, `data/calib/h2/README.md` | Names who produced the labels (NVD analysts; the CVSS vector author). Label provenance is a property of the data and has to be stated. |
 | `triager` | `data/build/phase3_build_bugreport_cls.py` | Same reason: the `substate` label *is* a decision a human triager recorded. Dropping the word would obscure where the label came from. |
+| `TIER1`..`TIER3` | `presets.py` fixture | Option values of a support fixture's contract-tier field — the vocabulary being classified. |
 
 Dataset naming follows the same rule: the bug-report set is
 `bugreport_cls` throughout — builder, manifest, row ids and results — and is
@@ -86,3 +88,22 @@ quietly changing what the other 63 checks mean.
 Current: **64 checks, 64 ok, 1 skipped**. The skip is the score-level check,
 whose corpus is not shipped; it prints the reason and the builder that recreates
 it. Skips are counted separately and never absorbed into the pass count.
+
+## 5. A committed artifact must be the one its builder writes
+
+Found by gate 3 while renaming: `bugreport_cls_manifest.json` carried a
+top-level `program_mentioned_rules` block that the builder never wrote. It was
+accurate — its counts recount exactly from the rows — but it had been added
+out-of-band, so re-running the builder would have produced a manifest missing
+the block that reports cite when they say which rule gave `n`.
+
+The builder now emits it, counted from the rows rather than hardcoded, so a
+different corpus cannot inherit these numbers. The rule of thumb this leaves:
+if a committed artifact says something its generator does not, the generator is
+the thing to fix — a hand-edit is invisible until someone reruns and quietly
+gets a different file.
+
+The same rename also showed why a grep is not enough on its own. The first pass
+missed the manifest because `§` is stored escaped as `\u00a7`, so a literal
+search for `§4` matched nothing while the string was plainly there. Structured
+files get edited through a parser, not through text replacement.
