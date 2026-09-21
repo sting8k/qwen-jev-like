@@ -28,16 +28,12 @@ fd4730dd8aad070517978752b63d530aeb1740d2283cab9fa24f1e404032ddb0  Qwen3.8-27B-UD
   checking rather than assuming. Shard 5 of 5 hashes identically to the LFS
   digest `QuantTrio/Qwen3.5-9B-AWQ` publishes, which is why that link is here.
   The other four shards were not checked.
-- **Ternary-Bonsai-27B PQ2_0** has an upstream, and **does not match it**. The
-  repository publishes `Ternary-Bonsai-27B-PQ2_0.gguf` at 7,165,121,600 bytes,
-  LFS SHA-256 `e4781999f1997ef97ce0c58d05750835acc999d18d83ee6489ba7ac7b14cb5f6`.
-  The file every Ternary-Bonsai number here was measured on is 7,206,168,928 bytes —
-  41 MB larger — and hashes to
-  `3907dc1658db1f78a9826bf8d5bcb8dc65db0d466388937af57f2294fae62ec1`. It is a local re-conversion,
-  which its GGUF header agrees with: no repository, `general.name = "Hf"`,
-  `general.basename = "folded"`. Reproducing this column therefore means
-  converting the published file again, and **that has not been tried**, so
-  whether it lands on the same bytes is unknown.
+- **Ternary-Bonsai-2-27B PQ2_0** was checked the same way, against
+  `prism-ml/Ternary-Bonsai-2-27B-gguf`: 7,206,168,928 bytes and the digest
+  above, equal to what the Hub records for that file. Note the **2** in the
+  name. `prism-ml/Ternary-Bonsai-27B-gguf` is a different model on a different
+  base and also publishes a `PQ2_0.gguf`, and comparing against that one makes
+  this byte-identical file look 41 MB wrong.
 - **Qwen3.5-4B-AWQ** and **Ornith-1.5-9B-AWQ-INT4** were not hashed. Their repositories are named above and
   were confirmed to exist; that is all.
 
