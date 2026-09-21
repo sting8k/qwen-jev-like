@@ -1,0 +1,175 @@
+{
+  "_source": "https://developers.cloudflare.com/ai/models/typesafe/jev/",
+  "_fetched": "2026-09-18",
+  "_model_version": "jev-1.13.0",
+  "_tier": "pinned",
+  "_note": "Verbatim request/response pairs from Cloudflare AI docs. Executed via: POST https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/ai/run with {\"model\": \"typesafe/jev\", \"input\": <input>}. Context window 32000 tokens.",
+  "examples": [
+    {
+      "name": "support_triage_text_state",
+      "description": "One text state, 3 typed questions (noul + choice + score)",
+      "input": {
+        "state": "Help! My payouts have been failing for 3 days.",
+        "questions": {
+          "is_urgent": {
+            "type": "noul",
+            "instructions": "Does this convey urgency?",
+            "criteria": { "true": "Explicitly time-sensitive", "false": "No urgency expressed" }
+          },
+          "department": {
+            "type": "choice",
+            "instructions": "Which team should handle this?",
+            "criteria": {
+              "billing": "Payments, invoicing, refunds",
+              "technical": "Bugs, outages, integrations",
+              "sales": "Pricing, upgrades, new accounts"
+            }
+          },
+          "frustration": {
+            "type": "score",
+            "instructions": "How frustrated is the customer?",
+            "criteria": ["Calm", "Frustrated", "Very angry"]
+          }
+        }
+      },
+      "published_response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "is_urgent": { "type": "noul", "noul": 0.95 },
+          "department": {
+            "type": "choice",
+            "choice": "billing",
+            "confidence": 0.8,
+            "probabilities": { "billing": 0.87, "sales": 0, "technical": 0.13 }
+          },
+          "frustration": {
+            "type": "score",
+            "score": 1.04,
+            "confidence": 0.94,
+            "legend": { "0": "Calm", "1": "Frustrated", "2": "Very angry" },
+            "probabilities": { "0": 0, "1": 0.96, "2": 0.04 }
+          }
+        },
+        "usage": { "input_tokens": 426, "output_tokens": 73 }
+      }
+    },
+    {
+      "name": "refund_review_structured_state",
+      "description": "Structured (object) state with ticket + order + policy; 2 noul questions",
+      "input": {
+        "state": {
+          "ticket": {
+            "subject": "Duplicate charge",
+            "message": "I was charged twice for order A-104. Please refund the duplicate."
+          },
+          "order": {
+            "id": "A-104",
+            "charges": [
+              { "amount_usd": 49, "status": "captured" },
+              { "amount_usd": 49, "status": "captured" }
+            ]
+          },
+          "refund_policy": "Duplicate charges are eligible for a refund."
+        },
+        "questions": {
+          "refund_requested": { "type": "noul", "instructions": "Does `ticket.message` request a refund?" },
+          "policy_supports_refund": {
+            "type": "noul",
+            "instructions": "Does `refund_policy` support the refund requested in `ticket.message`, given `order.charges`?"
+          }
+        }
+      },
+      "published_response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "refund_requested": { "type": "noul", "noul": 0.99 },
+          "policy_supports_refund": { "type": "noul", "noul": 0.98 }
+        },
+        "usage": { "input_tokens": 422, "output_tokens": 41 }
+      }
+    },
+    {
+      "name": "department_routing_choice",
+      "description": "Single choice question, 4 options, confidence 1.0",
+      "input": {
+        "state": "I cannot log in after changing my password, and the reset email never arrives.",
+        "questions": {
+          "department": {
+            "type": "choice",
+            "instructions": "Which team should handle this support request?",
+            "criteria": {
+              "account": "Login, password, profile, or security issues",
+              "billing": "Charges, invoices, refunds, or subscriptions",
+              "technical": "Product bugs, outages, or integrations",
+              "other": "Requests that do not fit the other departments"
+            }
+          }
+        }
+      },
+      "published_response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "department": {
+            "type": "choice",
+            "choice": "account",
+            "confidence": 1,
+            "probabilities": { "technical": 0, "billing": 0, "account": 1, "other": 0 }
+          }
+        },
+        "usage": { "input_tokens": 380, "output_tokens": 45 }
+      }
+    },
+    {
+      "name": "account_risk_score_noul",
+      "description": "Structured state; score (3-level criteria) + noul question",
+      "input": {
+        "state": {
+          "account_age_days": 12,
+          "recent_events": [
+            "Five failed login attempts",
+            "Password reset requested from a new country",
+            "Successful login from the usual device"
+          ],
+          "account_verified": true
+        },
+        "questions": {
+          "risk_level": {
+            "type": "score",
+            "instructions": "How risky does this account activity appear?",
+            "criteria": [
+              "Low risk: activity is consistent with the account history",
+              "Moderate risk: some unusual activity needs monitoring",
+              "High risk: multiple strong indicators of account compromise"
+            ]
+          },
+          "escalate": {
+            "type": "noul",
+            "instructions": "Should this account be escalated for manual security review?",
+            "criteria": {
+              "true": "The activity warrants immediate human review",
+              "false": "The activity can be handled with normal automated controls"
+            }
+          }
+        }
+      },
+      "published_response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "risk_level": {
+            "type": "score",
+            "score": 1.84,
+            "confidence": 0.77,
+            "legend": {
+              "0": "Low risk: activity is consistent with the account history",
+              "1": "Moderate risk: some unusual activity needs monitoring",
+              "2": "High risk: multiple strong indicators of account compromise"
+            },
+            "probabilities": { "0": 0, "1": 0.16, "2": 0.84 }
+          },
+          "escalate": { "type": "noul", "noul": 0.81 }
+        },
+        "usage": { "input_tokens": 421, "output_tokens": 36 }
+      }
+    }
+  ]
+}

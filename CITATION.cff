@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software or its measurements, please cite it."
+title: "qwen-jev-like: typed decisions from open local models, one forward pass"
+abstract: >-
+  A re-implementation of a typed-decision contract (yes/no, pick-one, rubric
+  score) over open local models, scoring options in a single forward pass
+  instead of generating them. Ships the engine, two backends, the calibration
+  pipeline, and the measurements with their disclosures.
+authors:
+  - alias: sting8k
+repository-code: "https://github.com/sting8k/qwen-jev-like"
+license: MIT
+version: "0.1.0"
+date-released: "2026-09-22"
+keywords:
+  - structured-output
+  - calibration
+  - selective-prediction
+  - quantization
+  - llama.cpp
+  - vllm

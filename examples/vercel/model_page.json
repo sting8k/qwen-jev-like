@@ -1,0 +1,31 @@
+{
+  "_source": "https://vercel.com/ai-gateway/models/jev",
+  "_fetched": "2026-09-18",
+  "description": "Jev is TypeSafe AI's System One evaluation model for fast, structured decisions in software. It evaluates shared state against typed questions and returns choices, scores, and boolean probabilities, supporting classification, routing, rubric-based assessment, and automated verification. Multiple questions can be evaluated in parallel within a single request.",
+  "input_price": "$0.04 per 1M tokens",
+  "provider": {
+    "name": "TypeSafe AI",
+    "legal": ["https://typesafe.ai/legal/terms", "https://typesafe.ai/legal/privacy-policy"],
+    "release_date": "2026-09-15",
+    "price": "$0.04/M"
+  },
+  "ai_sdk_snippet_verbatim": [
+    "import { experimental_evaluate as evaluate } from 'ai';",
+    "",
+    "const result = await evaluate({",
+    "  model: 'typesafe-ai/jev',",
+    "  state: 'The support agent issued a full refund to the customer.',",
+    "  questions: {",
+    "    refunded: {",
+    "      type: 'boolean',",
+    "      instructions: 'Was a refund issued?',",
+    "    },",
+    "  },",
+    "})"
+  ],
+  "notes": [
+    "SDK type name is 'boolean' here, but the Cloudflare/TypeSafe API calls the same question type 'noul'.",
+    "Related: https://vercel.com/changelog/typesafe-ai-jev-now-available-on-ai-gateway ; https://vercel.com/docs/ai-gateway/modalities/evaluation",
+    "This example is a verification/rubric-check shape (state = agent transcript fact, question = 'Was a refund issued?') — distinct from classification use cases."
+  ]
+}

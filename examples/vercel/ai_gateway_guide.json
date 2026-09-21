@@ -1,0 +1,100 @@
+{
+  "_fetched": "2026-09-19",
+  "_model_version": "jev-latest (unpinned)",
+  "_note": "Vercel AI Gateway / AI SDK `experimental_evaluate`. ORIGINAL NAMES: question type `boolean` and answer field `probability`; normalized here to `noul`/`noul` for our contract. The page's `clearAnswers`/`mockJev` blocks are unit-test mocks, not model output, and are excluded.",
+  "_source": "https://vercel.com/kb/guide/typesafe-jev-and-ai-sdk",
+  "_tier": "unpinned",
+  "examples": [
+    {
+      "description": "Single noul on a support transcript (AI SDK)",
+      "input": {
+        "questions": {
+          "refunded": {
+            "criteria": {
+              "false": "No refund was issued, or the refund was declined.",
+              "true": "The agent confirmed that money was returned to the customer."
+            },
+            "instructions": "Was a refund issued to the customer?",
+            "type": "noul"
+          }
+        },
+        "state": "The support agent issued a full refund to the customer."
+      },
+      "name": "vercel_was_refunded",
+      "published_response": {
+        "answers": {
+          "refunded": {
+            "noul": 0.99,
+            "type": "noul"
+          }
+        }
+      }
+    },
+    {
+      "description": "choice + score + noul in one call; state is a JSON object, not text",
+      "input": {
+        "questions": {
+          "department": {
+            "criteria": {
+              "account": "Login, permissions, and profile changes",
+              "billing": "Charges, invoices, and refunds",
+              "other": "Anything that does not fit the other teams",
+              "technical": "Bugs, outages, and integration failures"
+            },
+            "instructions": "Which team should handle this ticket?",
+            "type": "choice"
+          },
+          "requestsRefund": {
+            "instructions": "Is the customer asking for money back?",
+            "type": "noul"
+          },
+          "severity": {
+            "criteria": [
+              "Cosmetic or informational",
+              "Degraded, but a workaround exists",
+              "Blocking with no workaround",
+              "Blocking and causing financial or data loss"
+            ],
+            "instructions": "How severe is the issue for the customer?",
+            "type": "score"
+          }
+        },
+        "state": {
+          "message": "My Stripe connection has failed for three days and I am losing sales. Refund me for this month.",
+          "plan": "pro",
+          "previousTickets": 2,
+          "subject": "Stripe sync broken"
+        }
+      },
+      "name": "vercel_ticket_triage",
+      "published_response": {
+        "answers": {
+          "department": {
+            "choice": "technical",
+            "probabilities": {
+              "account": 0.01,
+              "billing": 0.08,
+              "other": 0,
+              "technical": 0.91
+            },
+            "type": "choice"
+          },
+          "requestsRefund": {
+            "noul": 0.97,
+            "type": "noul"
+          },
+          "severity": {
+            "probabilities": {
+              "0": 0,
+              "1": 0.02,
+              "2": 0.1,
+              "3": 0.88
+            },
+            "score": 2.86,
+            "type": "score"
+          }
+        }
+      }
+    }
+  ]
+}

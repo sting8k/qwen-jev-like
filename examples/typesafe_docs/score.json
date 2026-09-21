@@ -1,0 +1,342 @@
+{
+  "_fetched": "2026-09-19",
+  "_model_version": "jev-latest (unpinned)",
+  "_note": "Score: 3-4 levels, plus the monotonic table and the numeric-levels counter-example. Verbatim from the docs page; question/answer names already follow our contract (noul/choice/score).",
+  "_source": "https://docs.typesafe.ai/primitives/score.md",
+  "_tier": "unpinned",
+  "examples": [
+    {
+      "description": "Score: 3-4 levels, plus the monotonic table and the numeric-levels counter-example",
+      "input": {
+        "questions": {
+          "bug_severity": {
+            "criteria": [
+              "Cosmetic; no impact to functionality",
+              "Broken or degraded feature, but workaround exists",
+              "Blocking issue; no workaround exists"
+            ],
+            "instructions": "How severe is the reported issue?",
+            "type": "score"
+          }
+        },
+        "state": "The export button crashes the settings page in Safari. It works in Chrome, but a few of our customers only use Safari."
+      },
+      "name": "score_0",
+      "published_response": {
+        "answers": {
+          "bug_severity": {
+            "confidence": 0.54,
+            "legend": {
+              "0": "Cosmetic; no impact to functionality",
+              "1": "Broken or degraded feature, but workaround exists",
+              "2": "Blocking issue; no workaround exists"
+            },
+            "probabilities": {
+              "0": 0.0,
+              "1": 0.7,
+              "2": 0.3
+            },
+            "score": 1.3,
+            "type": "score"
+          }
+        }
+      }
+    },
+    {
+      "description": "Score: 3-4 levels, plus the monotonic table and the numeric-levels counter-example",
+      "input": {
+        "questions": {
+          "frustration": {
+            "criteria": [
+              "Calm, just stating facts",
+              "Frustrated but civil",
+              "Very angry, strong language or threatening to leave"
+            ],
+            "instructions": "How frustrated is the customer?",
+            "type": "score"
+          },
+          "report_quality": {
+            "criteria": [
+              "No detail; just says something is broken",
+              "Names the feature but no steps or environment",
+              "Steps to reproduce or environment, but not both",
+              "Steps to reproduce and environment"
+            ],
+            "instructions": "How much does the report give an engineer to work with?",
+            "type": "score"
+          },
+          "severity": {
+            "criteria": [
+              "Cosmetic; no impact to functionality",
+              "Broken or degraded feature, but workaround exists",
+              "Blocking issue; no workaround exists"
+            ],
+            "instructions": "How severe is the reported issue?",
+            "type": "score"
+          }
+        },
+        "state": "Export to PDF fails with a spinner that never finishes. Some of our team say CSV export still works for them, others say it fails too. This is the third time I'm writing in and honestly I'm done. Steps: open any report, click Export, choose PDF. Chrome 128 on macOS."
+      },
+      "name": "score_1",
+      "published_response": {
+        "answers": {
+          "frustration": {
+            "confidence": 0.33,
+            "legend": {
+              "0": "Calm, just stating facts",
+              "1": "Frustrated but civil",
+              "2": "Very angry, strong language or threatening to leave"
+            },
+            "probabilities": {
+              "0": 0.0,
+              "1": 0.55,
+              "2": 0.45
+            },
+            "score": 1.45,
+            "type": "score"
+          },
+          "report_quality": {
+            "confidence": 1.0,
+            "legend": {
+              "0": "No detail; just says something is broken",
+              "1": "Names the feature but no steps or environment",
+              "2": "Steps to reproduce or environment, but not both",
+              "3": "Steps to reproduce and environment"
+            },
+            "probabilities": {
+              "0": 0.0,
+              "1": 0.0,
+              "2": 0.0,
+              "3": 1.0
+            },
+            "score": 3.0,
+            "type": "score"
+          },
+          "severity": {
+            "confidence": 0.63,
+            "legend": {
+              "0": "Cosmetic; no impact to functionality",
+              "1": "Broken or degraded feature, but workaround exists",
+              "2": "Blocking issue; no workaround exists"
+            },
+            "probabilities": {
+              "0": 0.0,
+              "1": 0.76,
+              "2": 0.24
+            },
+            "score": 1.24,
+            "type": "score"
+          }
+        }
+      }
+    },
+    {
+      "description": "Score: 3-4 levels, plus the monotonic table and the numeric-levels counter-example",
+      "input": {
+        "questions": {
+          "bug_severity": {
+            "criteria": [
+              {
+                "examples": [
+                  "typo in a label",
+                  "misaligned icon"
+                ],
+                "what": "Cosmetic; no impact to functionality"
+              },
+              {
+                "examples": [
+                  "export fails in one browser but works in another"
+                ],
+                "what": "Broken or degraded feature, but workaround exists"
+              },
+              {
+                "examples": [
+                  "cannot log in",
+                  "data loss"
+                ],
+                "what": "Blocking issue; no workaround exists"
+              }
+            ],
+            "instructions": "How severe is the reported issue?",
+            "type": "score"
+          }
+        },
+        "state": "Export to PDF fails with a spinner that never finishes. Some of our team say CSV export still works for them, others say it fails too."
+      },
+      "name": "score_2",
+      "published_response": {
+        "answers": {
+          "bug_severity": {
+            "confidence": 0.91,
+            "legend": {
+              "0": {
+                "examples": [
+                  "typo in a label",
+                  "misaligned icon"
+                ],
+                "what": "Cosmetic; no impact to functionality"
+              },
+              "1": {
+                "examples": [
+                  "export fails in one browser but works in another"
+                ],
+                "what": "Broken or degraded feature, but workaround exists"
+              },
+              "2": {
+                "examples": [
+                  "cannot log in",
+                  "data loss"
+                ],
+                "what": "Blocking issue; no workaround exists"
+              }
+            },
+            "probabilities": {
+              "0": 0.0,
+              "1": 0.94,
+              "2": 0.06
+            },
+            "score": 1.06,
+            "type": "score"
+          }
+        }
+      }
+    },
+    {
+      "_monotonic_check": true,
+      "description": "Same Score question over five bug reports ordered from cosmetic to blocking; the ORDER of the scores is the oracle, not the absolute values.",
+      "input": {
+        "questions": {
+          "bug_severity": {
+            "criteria": [
+              "Cosmetic; no impact to functionality",
+              "Broken or degraded feature, but workaround exists",
+              "Blocking issue; no workaround exists"
+            ],
+            "instructions": "How severe is the reported issue?",
+            "type": "score"
+          }
+        }
+      },
+      "name": "score_severity_monotonic_table",
+      "states": [
+        {
+          "published_response": {
+            "answers": {
+              "bug_severity": {
+                "confidence": 1.0,
+                "probabilities": {
+                  "0": 1.0,
+                  "1": 0.0,
+                  "2": 0.0
+                },
+                "score": 0.0,
+                "type": "score"
+              }
+            }
+          },
+          "state": "The export button is misaligned by a few pixels on the settings page."
+        },
+        {
+          "published_response": {
+            "answers": {
+              "bug_severity": {
+                "confidence": 1.0,
+                "probabilities": {
+                  "0": 0.0,
+                  "1": 1.0,
+                  "2": 0.0
+                },
+                "score": 1.0,
+                "type": "score"
+              }
+            }
+          },
+          "state": "The PDF export button does nothing when clicked. I can still export to CSV and convert it myself, but that takes ages."
+        },
+        {
+          "published_response": {
+            "answers": {
+              "bug_severity": {
+                "confidence": 0.81,
+                "probabilities": {
+                  "0": 0.0,
+                  "1": 0.88,
+                  "2": 0.12
+                },
+                "score": 1.12,
+                "type": "score"
+              }
+            }
+          },
+          "state": "Export to PDF fails with a spinner that never finishes. Some of our team say CSV export still works for them, others say it fails too."
+        },
+        {
+          "published_response": {
+            "answers": {
+              "bug_severity": {
+                "confidence": 0.54,
+                "probabilities": {
+                  "0": 0.0,
+                  "1": 0.7,
+                  "2": 0.3
+                },
+                "score": 1.3,
+                "type": "score"
+              }
+            }
+          },
+          "state": "The export button crashes the settings page in Safari. It works in Chrome, but a few of our customers only use Safari."
+        },
+        {
+          "published_response": {
+            "answers": {
+              "bug_severity": {
+                "confidence": 1.0,
+                "probabilities": {
+                  "0": 0.0,
+                  "1": 0.0,
+                  "2": 1.0
+                },
+                "score": 2.0,
+                "type": "score"
+              }
+            }
+          },
+          "state": "Nobody on our team can log in since this morning. We get a 500 error on every attempt."
+        }
+      ]
+    },
+    {
+      "description": "Docs' own counter-example: identical report, but the Score levels are the digits 0/1/2 instead of descriptions. Jev splits probability 0.43/0.57 (score 0.57, confidence 0.35) where descriptive levels give score 0.0 at confidence 1.0. Evidence that Jev also scores digit levels 0..N-1, and that numeric-only levels are weak by construction.",
+      "input": {
+        "questions": {
+          "bug_severity": {
+            "criteria": [
+              "0",
+              "1",
+              "2"
+            ],
+            "instructions": "Rate severity from 0 to 2, where 2 is worst",
+            "type": "score"
+          }
+        },
+        "state": "The export button is misaligned by a few pixels on the settings page."
+      },
+      "name": "score_numeric_levels_docs_bugreport",
+      "published_response": {
+        "answers": {
+          "bug_severity": {
+            "confidence": 0.35,
+            "probabilities": {
+              "0": 0.43,
+              "1": 0.57,
+              "2": 0.0
+            },
+            "score": 0.57,
+            "type": "score"
+          }
+        }
+      }
+    }
+  ]
+}

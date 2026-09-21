@@ -1,0 +1,17 @@
+{
+  "_source": "https://typesafe.ai/",
+  "_fetched": "2026-09-18",
+  "claims_verbatim_or_condensed": {
+    "positioning": "System One Models — natively used by machines. Not chat. New architecture, new sampler, new training algorithm: Reinforcement Learning for Calibrated Decisions (RLCD).",
+    "headline_speed_cost": "193.6x Faster, 444.6x Cheaper. (asterisk: based on workflows for System One tasks)",
+    "demo_comparison": { "typesafe": { "cost": "$0.000081", "time": "0.114s" }, "llms": { "cost": "$0.013880", "time": "8.566s" } },
+    "pricing": "$42 per billion input tokens; 238x lower input price than Claude Fable 5.1",
+    "zero_hallucination": "Zero Hallucinations — Every Jev decision comes with a confidence estimate, so your software can act when confidence is high and escalate when it is not.",
+    "calibration": "Returns typed decisions with calibrated probabilities; set thresholds for autonomy vs review."
+  },
+  "open_questions_for_phase3": [
+    "No reliability curve / ECE / calibration methodology published anywhere on the site (checked 2026-09-18). The 'calibrated' claim is the unverified one our Phase 3 replicates on a different engine.",
+    "FAQ exists ('Can Jev still get things wrong?', 'Is Jev deterministic?') — answers on page are collapsed in static HTML; need JS render or docs crawl to capture.",
+    "Homepage demo compares against 'LLMs' aggregate; per-model comparison detail lives behind 'proof' link — need to capture proof page."
+  ]
+}

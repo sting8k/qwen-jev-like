@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.pyc
+models/
+runs/
+.cache/
+.env
+
+# the llama.cpp checkout and its CUDA shadow root: built, never vendored
+backends/llamacpp/llama.cpp/
+backends/llamacpp/llama.cpp-prism/
+backends/llamacpp/cuda13/
+backends/llamacpp/fork_probe
+backends/llamacpp/fork_probe_bonsai
+backends/llamacpp/fork_worker
+
+# Corpora are rebuilt by data/build/*, never committed: several carry licences
+# that permit measurement but not redistribution. data/calib keeps the
+# per-set README (protocol + hashes) so a rebuild can be checked against it.
+data/raw/
+data/calib/**/*.jsonl

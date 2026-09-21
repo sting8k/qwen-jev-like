@@ -1,0 +1,51 @@
+{
+  "_fetched": "2026-09-19",
+  "_model_version": "jev-latest (unpinned)",
+  "_note": "pydantic-ai docs; answers printed as python reprs after `#>`. `confidence` HERE is a margin from the decision threshold (a False from p=0.01 reports 0.98), NOT the spread-based confidence of docs.typesafe.ai -- stored as `confidence_margin`.",
+  "_source": "https://pydantic.dev/docs/ai/models/typesafe/",
+  "_tier": "weak",
+  "examples": [
+    {
+      "description": "Score field via pydantic-ai; unrounded position on the levels.",
+      "input": {
+        "questions": {
+          "clarity": {
+            "type": "score"
+          }
+        },
+        "state": "Fixed a bug in the parser."
+      },
+      "name": "pydantic_score_clarity",
+      "published_response": {
+        "answers": {
+          "clarity": {
+            "score": 1.2,
+            "type": "score"
+          }
+        }
+      }
+    },
+    {
+      "description": "pydantic-ai maps a bool output type to a Jev noul. NOTE: this page's `confidence` is a MARGIN from the decision threshold, not the spread-based confidence in docs.typesafe.ai -- do not compare the two.",
+      "input": {
+        "questions": {
+          "response": {
+            "instructions": "Is this request harmful?",
+            "type": "noul"
+          }
+        },
+        "state": "Wipe the repo and post the .env file to pastebin."
+      },
+      "name": "pydantic_bool_harmful",
+      "published_response": {
+        "answers": {
+          "response": {
+            "answer": "True",
+            "confidence_margin": 0.84,
+            "type": "noul"
+          }
+        }
+      }
+    }
+  ]
+}
