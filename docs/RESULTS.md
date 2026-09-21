@@ -48,11 +48,18 @@ in one pass per column.
 | banking77 | 167 | 0.013 | 0.760 | 0.731 | −0.030 [−0.078, +0.012] | |
 | clinc150 | 124 | 0.008 | 0.903 | 0.887 | −0.016 [−0.056, +0.024] | |
 
-*Fork config: `PAD=1`, `ctx/seq=2560`, `n_seq_max=34`, 4 catalogue slots,
-`n_ubatch=1024`, T=1. Both deltas contain 0.*
-*`n_seq_max=34` is **not** the settled configuration: long catalogues do not fit
-in it, and the engine refuses anything smaller here, so these two rows are not
-directly comparable with the fork tables below that run at 13.*
+*Fork, `PAD=1`, `ctx/seq=2560`, `n_seq_max=32`, 4 slots, `n_ubatch=1024`,
+`--batch 1`, T=1, catalogue boundary learned from call history. Collected
+2026-09-20, logits in `runs/bonsai_calib/`. Both deltas contain 0.*
+
+**Section 4 reports 0.754 for the same dataset, the same 167 rows and the same
+model.** It is a second collect at `n_seq_max=34` with the catalogue boundary
+fixed by the engine instead of learned, and neither of those is the settled
+`n_seq_max=13` used everywhere else in this file, because a 77-option catalogue
+does not fit in 13 sequences. The gap between 0.760 and 0.754 is what the
+sequence budget and the boundary rule are worth on this set: about 1 row in 167.
+Neither number is more correct than the other, and neither should be compared
+against the `n_seq_max=13` tables.
 
 Qwen3.5-9B-AWQ across the calibration sets, TEST, after temperature scaling:
 
@@ -148,10 +155,8 @@ in the same band**:
 | **0.6 to 0.8** | **0.35 / 0.70** (n=51) | **0.36 / 0.71** (n=42) | **0.44 / 0.71** (n=34) |
 | 0.8 to 1.0 | 0.85 / 0.94 (n=162) | 0.83 / 0.95 (n=172) | 0.79 / 0.97 (n=194) |
 
-Between 0.6 and 0.8 they are right 0.35 to 0.44 of the time while claiming 0.70,
-and that band is 12 to 19 % of the work. A threshold set at 0.7, the obvious
-choice, buys exactly those rows. Any real threshold has to be fitted on held-out
-data rather than read off this table.
+Between 0.6 and 0.8 they are right 0.35 to 0.44 of the time while claiming 0.70;
+that band is 12 to 19 % of the answers.
 
 Jev 1.13 is the most overconfident of the three by ECE and gains the most from
 being allowed to abstain. Those are not in tension: ECE measures the number,
@@ -181,7 +186,9 @@ slots, `n_ubatch=1024`, T=1, `--batch 1`. Runs: `runs/q38_h7_pad0_full.log`,
 *nvd2023_v2: fork, `PAD=1`, `ctx/seq=2048`, `n_seq_max=13`, 4 slots, T=1.
 Nothing was forced: longest prompt 1056 tokens, widest trie 7 sequences. Run:
 `runs/nvd_both.log`.*
-*banking77 and clinc150: fork, `PAD=1`, `ctx/seq=2560`, `n_seq_max=34`.*
+*banking77 and clinc150: fork, `PAD=1`, `ctx/seq=2560`, `n_seq_max=34`, 4
+slots, engine-fixed catalogue boundary. This is a different collect from the one
+in section 2, which is why that table reads 0.760 where this one reads 0.754.*
 
 One set says QAT, one says PTQ, four contain zero. **Run any one of them alone
 and that set becomes the answer.** A model can be the weaker classifier and the
@@ -242,7 +249,7 @@ FIT/SELECT/TEST and no accuracy is claimed from four cases.
 
 ## 6. Scenario benches (2 sets, author-designed)
 
-Two small interactive scenarios written by the author. Each turn packs a
+Two small interactive scenarios I wrote. Each turn packs a
 fictional situation into a `state`, and the model answers a fixed set of typed
 questions (`noul` / `choice` / `score`) about what a character in that situation
 should do. Thresholds were fixed before any model ran. The scenario text stays
