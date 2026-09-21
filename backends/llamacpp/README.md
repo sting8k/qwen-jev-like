@@ -4,8 +4,8 @@ Nothing here is wired into the engine. This exists to answer the three questions
 `reports/llamacpp_recon.md` §f before anyone writes a second backend. The user approved
 a 2-hour gate; `core/` is untouched.
 
-The checkout and the CUDA shadow root are gitignored — only this README, `gate.py`,
-and the measured numbers are tracked.
+The checkout and the CUDA shadow root are gitignored — only this README, the two
+sources below, and the measured numbers are tracked.
 
 ## What is pinned
 
@@ -147,22 +147,9 @@ other side you still get a full probability table, and it is nonsense. Both file
 agree with `models/Qwen3.5-9B-AWQ` on all 248 077 ids that tokenizer can emit (each GGUF
 carries 243 more at the tail, which the engine never emits).
 
-## Running the gate
-
-One GPU process at a time — ask Dax before starting the server.
-
-```sh
-export LD_LIBRARY_PATH=$PWD/backends/llamacpp/cuda13/lib64
-backends/llamacpp/llama.cpp/build/bin/llama-server \
-  -m models/Qwen3.5-4B-GGUF/Qwen3.5-4B-Q4_K_M.gguf \
-  -ngl 99 -c 8192 -np 1 -fa on -ctk q8_0 -ctv q8_0 --host 127.0.0.1 --port 8080
-
-HF_HUB_OFFLINE=1 .venv/bin/python backends/llamacpp/gate.py --url http://127.0.0.1:8080 \
-  2>&1 | tee runs/llamacpp_gate_4b.log; echo "EXIT=${PIPESTATUS[0]}" >> runs/llamacpp_gate_4b.log
-```
-
 **Never use 4-bit KV cache** (`-ctk q4_1` etc.) on this architecture: upstream #27109
 measured prefill collapsing from ~1000 t/s to ~34 t/s on an RTX 3090.
 
-`gate.py` stops at the first failing step and says why. Step 1 (prefix reuse) is the one
-that can close the whole branch.
+The acceptance run that produced the numbers above lived in a harness that is not
+part of this repository; what it concluded is in `docs/RESULTS.md`, and
+`fork_probe.cpp` below is the probe it was built around.
