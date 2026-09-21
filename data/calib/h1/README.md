@@ -1,4 +1,4 @@
-# h1 — yes/no questions over a passage
+# h1, yes/no questions over a passage
 
 Three sets where the answer is true or false and the evidence is in the state itself, so a wrong answer is a reading failure rather than missing knowledge.
 
@@ -24,4 +24,4 @@ aee89aeaabb0b093aecf84cc33ed2e1b86e30a5f5526a72eff217908574f8d74  pubmedqa.jsonl
 343460b4c7cd5c6273ff55e81c24e2cb0fb88cd06cfcde9edf5f629bc4993850  scitail.jsonl
 ```
 
-**Reading the numbers.** BoolQ is sampled stratified by answer, so its true/false balance is more even than the source pool's 62/38 — a prior fitted on it does not see the natural rate. All three are `known_benchmark: true`: the model may have seen them in training, which inflates accuracy but says nothing either way about calibration.
+**Reading the numbers.** BoolQ is sampled stratified by answer, so its true/false balance is more even than the source pool's 62/38, a prior fitted on it does not see the natural rate. All three are `known_benchmark: true`: the model may have seen them in training, which inflates accuracy but says nothing either way about calibration.

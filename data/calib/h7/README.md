@@ -1,4 +1,4 @@
-# h7 — emotion labels
+# h7, emotion labels
 
 Single sentences with one emotion label each; the largest single set here, and the one used to fit the choice temperature.
 

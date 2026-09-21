@@ -1,6 +1,6 @@
 # examples/
 
-`cloudflare/jev_examples.json` — request/response pairs published by Cloudflare
+`cloudflare/jev_examples.json`, request/response pairs published by Cloudflare
 for their hosted typed-decision endpoint, captured 2026-09-18 against version
 `jev-1.13` and pinned since.
 

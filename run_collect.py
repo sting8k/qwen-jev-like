@@ -552,7 +552,7 @@ def main():
         # per-hypothesis subdirectories, so the original "base + name + .jsonl"
         # never resolved and the flag always raised FileNotFoundError; matching
         # by name fixed that but then the path form printed in --help stopped
-        # working, which cost Mario a run. Both work now.
+        # working. Both forms work.
         def keys(f):
             rel = os.path.relpath(f, base)
             return {os.path.basename(f)[:-6], rel[:-6], rel}

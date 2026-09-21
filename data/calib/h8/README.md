@@ -1,4 +1,4 @@
-# h8 — CVSS v3.1 metric prediction
+# h8, CVSS v3.1 metric prediction
 
 Eight independent choice questions per vulnerability description. The severity score itself is a formula over those eight answers and is never asked.
 
@@ -22,4 +22,4 @@ SHA-256 of the rebuilt file:
 86bbcd742b28235a8ed1c5a350ad0da4caf818cb522d45569d57b88fd4ebba16  cti_vsp_300.jsonl
 ```
 
-**Reading the numbers.** Two of the eight metrics are so imbalanced that every system measured on them lost to predicting the majority class, so a per-metric table is the only honest one — an average over the eight hides it.
+**Reading the numbers.** Two of the eight metrics are so imbalanced that every system measured on them lost to predicting the majority class, so a per-metric table is the only honest one, an average over the eight hides it.

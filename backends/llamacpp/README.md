@@ -1,10 +1,10 @@
-# backends/llamacpp — gate only, not a backend yet
+# backends/llamacpp, gate only, not a backend yet
 
 Nothing here is wired into the engine. This exists to answer the three questions in
 `reports/llamacpp_recon.md` §f before anyone writes a second backend. The user approved
 a 2-hour gate; `core/` is untouched.
 
-The checkout and the CUDA shadow root are gitignored — only this README, the two
+The checkout and the CUDA shadow root are gitignored, only this README, the two
 sources below, and the measured numbers are tracked.
 
 ## What is pinned
@@ -23,7 +23,7 @@ Do not download the 9B Q8_0 (9.53 GB) until the gate passes.
 ## Building (three traps, all paid for already)
 
 1. **The `nvcc` on PATH is 11.7** and `/usr/local/cuda-12.0` ships the cuBLAS runtime
-   *without* headers — configure dies at `CUDA::cublas` / `cublas_v2.h: No such file`.
+   *without* headers, configure dies at `CUDA::cublas` / `cublas_v2.h: No such file`.
    The only complete toolkit is CUDA 13.4 inside the venv.
 2. **`CUDA_HOME` is exported as `/usr/local/cuda-11.7`** in this shell. nvcc honours it and
    pre-includes 11.7's `cuda_runtime.h`, so CCCL aborts with *"CUDA compiler and CUDA
@@ -67,14 +67,14 @@ types `PQ2_0` (ggml id 142, group 128) and `PTQ1_0` with their own CUDA/Vulkan
 kernels. It also carries `kv-mean-center` (a K-cache bias for Q4_0 KV) and
 `examples/rs-rollback` (a correctness harness for the recurrent-state snapshot ring).
 
-**The source had to be cloned.** The release tarball is binaries only — no headers,
-no source — and the `.so` files are stripped. Which matters because:
+**The source had to be cloned.** The release tarball is binaries only, no headers,
+no source, and the `.so` files are stripped. Which matters because:
 
 > **Never compile against upstream's `llama.h` and link the fork's `libllama.so`.**
 > The symbol sets are one function apart (240 vs 241 `llama_*`), so it links and
 > runs. But the fork inserts `const char * path_kv_mean_center` into the *middle*
 > of `llama_context_params`, and upstream adds `lazy_mode` to `llama_model_params`
-> — both structs are passed **by value**. Every field after the insertion point
+>, both structs are passed **by value**. Every field after the insertion point
 > would read from the wrong offset and the probe would print plausible numbers.
 > The fork's own README says the same thing: do not mix its `ggml-*` libraries
 > with a stock build.
@@ -95,7 +95,7 @@ cmake --build build -j$(nproc) --target llama llama-bench
 ```
 
 Compiling `fork_probe.cpp` against the fork (this command was never written down for
-the 4B build — that gap cost a rebuild):
+the 4B build, that gap cost a rebuild):
 
 ```sh
 cd backends/llamacpp
@@ -135,7 +135,7 @@ export LD_LIBRARY_PATH=$PWD/backends/llamacpp/cuda13/lib64
 
 The second one is here to answer **"is QAT necessary for Jev-mode"**, not "which model
 is better": same `qwen35` arch and same vocabulary, quantized the ordinary way. Note it
-is the *larger* of the two on the card — the ternary file is 7.21 GB against 9.83 GB, so
+is the *larger* of the two on the card, the ternary file is 7.21 GB against 9.83 GB, so
 QAT is not being compared against a cheaper option here.
 
 Weights are the one figure that does not move with the run: the compute buffer does, so

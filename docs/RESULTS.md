@@ -247,7 +247,7 @@ FIT/SELECT/TEST and no accuracy is claimed from four cases.
 
 ---
 
-## 6. Scenario benches (2 sets, author-designed)
+## 6. Scenario benches, two sets I wrote
 
 Two small interactive scenarios I wrote. Each turn packs a
 fictional situation into a `state`, and the model answers a fixed set of typed

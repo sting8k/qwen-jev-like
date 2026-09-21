@@ -1,4 +1,4 @@
-# h5 — transaction labels
+# h5, transaction labels
 
 Tabular records turned into text, kept because it is the one set here whose labels are neither human nor model-derived.
 

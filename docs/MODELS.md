@@ -23,7 +23,7 @@ fd4730dd8aad070517978752b63d530aeb1740d2283cab9fa24f1e404032ddb0  Qwen3.8-27B-UD
 - **Qwen3.8-27B UD-Q2_K_XL** was checked against the upstream repository: the local digest equals
   the LFS SHA-256 the Hub records for that file, so the file measured here is
   the file that repository serves.
-- **Qwen3.5-9B-AWQ** was fetched through a ModelScope mirror (`tclf90/Qwen3.5-9B-AWQ` — the
+- **Qwen3.5-9B-AWQ** was fetched through a ModelScope mirror (`tclf90/Qwen3.5-9B-AWQ`, the
   checkout's own `.msc` metadata records it), so the Hub link above needed
   checking rather than assuming. Shard 5 of 5 hashes identically to the LFS
   digest `QuantTrio/Qwen3.5-9B-AWQ` publishes, which is why that link is here.

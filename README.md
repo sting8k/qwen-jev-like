@@ -257,10 +257,11 @@ Sections there:
 1. Speed: cold and warm per preset, Qwen3.5-9B-AWQ on vLLM, against an autoregressive baseline that saw the same prompt.
 2. Accuracy per dataset: all five models above, with majority-class rate.
 3. Calibration: ECE, Brier, selective accuracy, reliability diagrams, T per question type.
-4. QAT vs PTQ: the six-set comparison with CIs.
+4. QAT vs PTQ: the five-set comparison with CIs.
 5. Direction agreement with Jev on `typesafe-ai-benchmark` and the Cloudflare cases.
 6. Scenario benches: criteria and per-model verdicts (the scenarios themselves are not published).
 7. Determinism: byte-identity across processes on the llama.cpp fork, and the batch-shape effect on vLLM.
+8. Known limits: what is not shown, not calibrated, or waived.
 
 ### Engine
 

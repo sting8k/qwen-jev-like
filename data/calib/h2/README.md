@@ -1,4 +1,4 @@
-# h2 — multi-field classification
+# h2, multi-field classification
 
 Several independent choice questions asked of one state, which is where a per-question temperature has to hold up across fields that differ in difficulty.
 
@@ -25,4 +25,4 @@ bbd0777f95125cc9e2cd15648d027faec72ea302e3fb0432f0dce0cac731f109  nvd2023_v2.jso
 5a29583c6c0b990d5c42889461dfeb868dba3d8203b63e854eb60e764ada9d6e  banking77.jsonl
 ```
 
-**Reading the numbers.** `nvd2023.jsonl` is superseded by `nvd2023_v2.jsonl`; the old file stays on disk so earlier numbers remain checkable, and results state which one they used. GoEmotions rows are `short_state: true` — single Reddit comments — so a long-context claim cannot be made from them.
+**Reading the numbers.** `nvd2023.jsonl` is superseded by `nvd2023_v2.jsonl`; the old file stays on disk so earlier numbers remain checkable, and results state which one they used. GoEmotions rows are `short_state: true`, single Reddit comments, so a long-context claim cannot be made from them.

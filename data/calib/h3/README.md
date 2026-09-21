@@ -1,4 +1,4 @@
-# h3 — rubric scores on an ordered scale
+# h3, rubric scores on an ordered scale
 
 Sentiment on an ordered scale, which is the only question type here where being wrong by one level differs from being wrong by four.
 
@@ -25,4 +25,4 @@ e4681ea8bde57c3eef87ae201b5d50f4e9bce3991bc508df40d6076d80833cfc  sst5_desc.json
 82e1a093614a3b8f94c5719445d9299aaa4b755383825dde7555e1eb3f31fd75  amazon_desc.jsonl
 ```
 
-**Reading the numbers.** The `_desc` files are the same rows with named levels instead of bare digits, and they exist because a bare digit `'5'` fell outside the scored token set on 103 of 500 rows, losing mass. Score accuracy has two definitions in this project — within one level, and exact — and they differ by roughly 0.35 on the same rows, so every score number states which it used.
+**Reading the numbers.** The `_desc` files are the same rows with named levels instead of bare digits, and they exist because a bare digit `'5'` fell outside the scored token set on 103 of 500 rows, losing mass. Score accuracy has two definitions in this project, within one level, and exact, and they differ by roughly 0.35 on the same rows, so every score number states which it used.

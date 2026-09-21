@@ -1,4 +1,4 @@
-# h6 — diagnostic probes
+# h6, diagnostic probes
 
 Rows built to expose specific failure modes: answering with no content at all, the same question under permuted option order, and letter-only labels.
 
@@ -26,4 +26,4 @@ d1bda67f93cfd20caf21e65a2462bf5de54e3c371eba6b70f352c2d93f0d24cf  label_name_arc
 e722bf2ea2e7aebba6e8be6882b679516224fcd077ecc7aacd6df923a4532282  vi_boolq.jsonl
 ```
 
-**Reading the numbers.** These rows never enter a fit or a test set; they diagnose the model, they do not score it. `label_name_arc.jsonl` presents options as bare letters with no mapping in the state, so nothing can identify what a letter means and its accuracy sits at chance — `_v2` carries the mapping and is the one to use. The first file is kept because published numbers refer to it.
+**Reading the numbers.** These rows never enter a fit or a test set; they diagnose the model, they do not score it. `label_name_arc.jsonl` presents options as bare letters with no mapping in the state, so nothing can identify what a letter means and its accuracy sits at chance, `_v2` carries the mapping and is the one to use. The first file is kept because published numbers refer to it.
