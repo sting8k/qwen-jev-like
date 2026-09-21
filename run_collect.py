@@ -1,4 +1,4 @@
-"""Phase-3 calibration collector (brief §7, Biscuit spec 2026-09-18).
+"""Phase-3 calibration collector (brief §7).
 
 Reads data/calib/<huong>/<dataset>.jsonl (brief §1 rows), runs the production
 engine (1 generate call per state, catalog-first layout), and appends ONE line
@@ -125,7 +125,7 @@ def norm_label(r):
 
 def load_catalog_desc(path):
     """Sibling <dataset>_catalog.json (JSONL rows {intent, desc}).
-    Desc is Biscuit-approved deterministic prompt material; intent strings
+    Desc is deterministic prompt material; intent strings
     stay verbatim (engine invariant #1 unaffected)."""
     cat = os.path.join(os.path.dirname(path),
                        os.path.basename(path)[:-6] + "_catalog.json")
@@ -145,7 +145,7 @@ def load_catalog_desc(path):
 def naturalize(opt: str) -> str:
     """Natural-case desc for an option: split snake_case, title-case words.
     'ANGRY' -> 'Angry', 'P0_CRITICAL' -> 'P0 Critical', 'top_up' -> 'Top Up'.
-    Applied only when no catalog desc exists (Biscuit 2026-09-18)."""
+    Applied only when no catalog desc exists."""
     words = opt.replace("-", "_").split("_")
     return " ".join(w[:1].upper() + w[1:] for w in words if w)
 
@@ -251,7 +251,10 @@ def sample_groups(groups, n):
 
 # --------------------------------------------------------------- engine ----
 def make_engine(dry):
-    from core.jev_engine import JevEngine, MODEL_PATH, MODEL_QUANT
+    from core.jev_engine import (JevEngine, MODEL_PATH, MODEL_QUANT,
+                                 require_model)
+
+    require_model()
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained(MODEL_PATH)
     if dry:
@@ -298,7 +301,7 @@ def row_out(r, diag, eng, prompt_toks, group=None):
         ms_plan = round(e["elapsed_ms"] - e["fields_ms"] - e["prefill_ms"], 1)
     o = {
         "id": r["id"], "dataset": r["_ds"], "qtype": r["qtype"],
-        # prefer the data's group_id (Gizmo contract #1: NVD = CVE-ID);
+        # prefer the data's group_id (NVD = CVE-ID);
         # sha1(state) fallback for files built before the rebuild
         "group": group or (
             str(r["group_id"]) if r.get("group_id") else
@@ -318,7 +321,7 @@ def row_out(r, diag, eng, prompt_toks, group=None):
         "source": r.get("source"), "license": r.get("license"),
         "label_source": r.get("label_source"),
         "known_benchmark": r.get("known_benchmark", False),
-        # H6 diagnostic rows must never enter FIT/SELECT/TEST (Biscuit)
+        # H6 diagnostic rows must never enter FIT/SELECT/TEST
         "probe": bool(r.get("probe", False)),
         "probe_kind": r.get("probe_kind"),
         "perm_id": r.get("perm_id"),
@@ -542,7 +545,7 @@ def main():
         if f.endswith(".jsonl") and "_samples" not in dp and not f.startswith("_")
     )
     # versioned datasets: nvd2023.jsonl superseded by nvd2023_v2.jsonl
-    # (Gizmo freeze protocol: new files, old ones stay on disk)
+    # (freeze protocol: new files, old ones stay on disk)
     files = [f for f in files if not os.path.exists(f[:-6] + "_v2.jsonl")]
     if args.datasets:
         # Accept both the bare name and the h*/name path. The datasets live in

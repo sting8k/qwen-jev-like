@@ -1,6 +1,6 @@
 """Phase 3 H2 builder — small-choice multi-field datasets -> data/calib/h2/*.jsonl
 
-Biscuit-approved 2026-09-18:
+Datasets:
   - NVD CVE 2.0 feed 2023 (local data/raw/nvdcve-2.0-2023.json.gz), public domain,
     300 CVEs stratified (LOW>=30), 2-3 derived fields per CVE:
       severity (P0-P3), attack_surface (REMOTE_UNAUTH/REMOTE_AUTH/LOCAL; AV:A dropped),
@@ -39,7 +39,7 @@ SEV_MAP = {"CRITICAL": "P0_CRITICAL", "HIGH": "P1_HIGH",
            "MEDIUM": "P2_MEDIUM", "LOW": "P3_LOW"}
 SEV_OPTIONS = list(SEV_MAP.values())
 AS_OPTIONS = ["REMOTE_UNAUTH", "REMOTE_AUTH", "LOCAL"]
-CWE_NAMES = {  # readable preset-style names (Biscuit-approved shortlist)
+CWE_NAMES = {  # readable preset-style names
     "CWE-79": "CWE_79_XSS", "CWE-89": "CWE_89_SQLI",
     "CWE-787": "CWE_787_OOB_WRITE", "CWE-22": "CWE_22_PATH_TRAVERSAL",
     "CWE-352": "CWE_352_CSRF", "CWE-862": "CWE_862_MISSING_AUTHZ",

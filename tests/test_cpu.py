@@ -132,7 +132,7 @@ def main() -> int:
           f"expected {FINGERPRINT}; token boundaries differ, so every result "
           f"below would be about a different vocabulary")
 
-    print("== 1. Biscuit trap #3: noul position (space merges into ' true') ==")
+    print("== 1. noul position: the space merges into ' true' ==")
     fake = FakeLLM()
     eng = JevEngine(fake, tok)
     # direct probe: suffix diff must produce single ' true'/' false' tokens

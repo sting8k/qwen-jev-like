@@ -1,4 +1,4 @@
-"""Phase 3 H3+H4 builder — Biscuit sign-off 2026-09-18 19:34.
+"""Phase 3 H3+H4 builder.
 
 Outputs (NEW files only — previously submitted JSONL are frozen on disk):
   data/calib/h2/nvd2023_v2.jsonl      — 300 CVE x 4 rows (3 choice + 1 score cvss_base_score
@@ -197,7 +197,7 @@ def build_amazon():
         text = (ex.get("text") or "").strip()
         label = int(ex["label"]) + 1  # 0-4 -> stars 1-5
         words = len(text.split())
-        if not (30 <= words <= 400):  # Biscuit: body only, 30-400 words
+        if not (30 <= words <= 400):  # body only, 30-400 words
             continue
         if text in seen:
             continue

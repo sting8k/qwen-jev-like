@@ -1,6 +1,6 @@
 """Phase 3 H1 builder — noul-with-passage datasets -> data/calib/h1/*.jsonl
 
-Datasets (Biscuit-approved 2026-09-18):
+Datasets:
   - google/boolq      validation, 300 rows, CC-BY-SA-3.0
   - qiaojin/PubMedQA  pqa_labeled, ~400 rows (drop 'maybe'), MIT
   - allenai/scitail   tsv_format validation, 400 rows, Apache-2.0 (short_state)

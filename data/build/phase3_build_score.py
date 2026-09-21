@@ -1,11 +1,11 @@
-"""Phase 3 score builder — SST-5 (Biscuit sign-off 2026-09-19 17:01, user-approved S2 only).
+"""Phase 3 score builder — SST-5, S2 only.
 
 Outputs (NEW files; previously submitted JSONL are frozen on disk):
   data/calib/h3/sst5.jsonl      — 400 rows (80/level), score scale 0..4, label_source human
-  data/calib/h3/sst5_desc.jsonl — the same 400 rows plus scale_labels (brief §1,
-                                  Biscuit 2026-09-19 17:17): level names instead of digits
+  data/calib/h3/sst5_desc.jsonl — the same 400 rows plus scale_labels (brief §1):
+                                  level names instead of digits
   data/calib/h3/amazon_desc.jsonl — the same 500 rows of amazon_reviews_en.jsonl plus
-                                  scale_labels (Biscuit 2026-09-19 18:43); read off disk,
+                                  scale_labels; read off disk,
                                   no download, the published file is not touched
 
 Purpose: an A/B against data/calib/h3/amazon_reviews_en.jsonl for the P1 remap bug.

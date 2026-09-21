@@ -1,7 +1,6 @@
 """Bug-report classification builder — HackerOne disclosed reports -> data/raw/bugreport_cls/*.jsonl
 
 Contract: docs/PROTOCOL.md (bug-report classification).
-Biscuit approved 2026-09-22; user approved the same day at **n=300** (not 600).
 Survey evidence: the dataset survey in the research repository.
 
 What the label is: `substate` is the decision a real triager recorded on this

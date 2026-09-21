@@ -12,7 +12,7 @@ Contract (verbatim from typesafe/jev 1.13 docs):
       choice -> {type, choice: key, confidence, probabilities}
       score  -> {type, score: E[level], confidence, legend, probabilities}
 
-Mechanism (deliberated with Biscuit 2026-09-18, review round 2):
+Mechanism:
   - one shared prompt (state + question catalog incl. criteria descriptions)
   - P(option) = product of conditional logprobs along the option-token TRIE,
     MINIMAL EXPANSION: only nodes with >=2 distinct child tokens are scored
@@ -40,6 +40,19 @@ NODE_BUDGET = 64
 # label is derived from the path so provenance in every output follows the
 # weights automatically (default reproduces "jev-rlcd-qwen3.5-9b-awq" exactly).
 MODEL_PATH = os.environ.get("JEV_MODEL", "models/Qwen3.5-9B-AWQ")
+
+
+def require_model() -> str:
+    """Fail on a missing checkout here, with the instruction, rather than in the
+    hub client. A relative path that does not exist is indistinguishable from a
+    repository id, so the loaders report it as a 404 against a name nobody typed.
+    Entry points call this before building anything."""
+    if not os.path.isdir(MODEL_PATH):
+        raise SystemExit(
+            f"no model at {MODEL_PATH!r}.\n"
+            f"Set JEV_MODEL to a local checkout, or download weights into "
+            f"models/. The CPU tests need no weights: python -m tests.test_cpu")
+    return MODEL_PATH
 MODEL_LABEL = "jev-rlcd-" + os.path.basename(MODEL_PATH.rstrip("/")).lower()
 # Phase-3 collection ran the 9B on the awq_marlin kernel; keep that the default
 # so those numbers stay reproducible. A checkpoint quantized another way (e.g.
@@ -113,7 +126,7 @@ class JevEngine:
 
     def _diff(self, base_ids: list[int], continuation: str) -> list[int]:
         """Tokens of (base+continuation) minus base. Never trust standalone
-        tokenization (space merge / BPE boundary -- Biscuit trap #3).
+        tokenization (space merge / BPE boundary).
         Window-encoded: a full re-encode is O(len(base)) and the catalogs
         re-encode 1.5-8.5K tokens per question (0.2-2s of pure CPU)."""
         win, win_text = self._stable_window(base_ids)
@@ -132,7 +145,7 @@ class JevEngine:
     def _stable_window(self, base_ids: list[int], K: int = 16):
         """Last K tokens of base that re-encode to themselves standalone.
         A window starting mid-BPE-run (e.g. inside a long '\n' run) parses
-        differently -- widen by 8 until stable (Biscuit)."""
+        differently -- widen by 8 until stable."""
         while K <= len(base_ids):
             cand = base_ids[-K:]
             cand_text = self.tok.decode(cand)
@@ -275,7 +288,7 @@ class JevEngine:
                     # catalog FIRST, state LAST: the catalog is identical across
                     # requests in production, so its cache blocks must hash
                     # identically -- a varying state at the top would invalidate
-                    # every block after it (Biscuit's reorder).
+                    # every block after it.
                     f"QUESTIONS:\n{catalog}\n\nSTATE:\n{state_text}"
                 ),
             }

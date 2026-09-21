@@ -1,4 +1,4 @@
-"""Phase-3 calibration fit (CPU, offline). Biscuit spec 2026-09-18, brief §6-7.
+"""Phase-3 calibration fit (CPU, offline). Brief §6-7.
 
 Input: runs/calib/<ds>.logits.jsonl (raw log-mass per option, written once by
 run_calib_collect.py). Nothing here touches the GPU.
@@ -113,7 +113,7 @@ def pred_conf_hit(row, T, b=None, prior=None):
     im = max(range(len(p)), key=lambda i: p[i])
     pred = keys[im]
     if row["qtype"] == "score":
-        # Biscuit 2026-09-18: prediction := mode (never round(E) -- a bimodal
+        # prediction := mode (never round(E) -- a bimodal
         # distribution drops E between both peaks), correct := |mode-label|<=1,
         # confidence := mass in [mode-1, mode+1] (label-free). E and
         # MAE(E, label) reported separately as Jev-comparable auxiliaries.
@@ -466,7 +466,7 @@ def main():
                   f"{sum(hits_mode)/len(hits_mode):.4f}, MAE(E,label) = {mae:.3f} "
                   f"(ECE on 5 bins = {m1['ece']:.4f})")
 
-    # per-dataset TEST breakdown: Biscuit 19:57 -- options with several BPE
+    # per-dataset TEST breakdown: options with several BPE
     # spellings lose a few % of mass unevenly, so a dataset ECE stuck near
     # 0.02 after T is the engine floor, not a bad fit.
     print(f"\n{'dataset':24} {'qtype':7} {'n':>4}  acc     ECE     Brier   note")

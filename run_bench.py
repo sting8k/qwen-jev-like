@@ -34,7 +34,9 @@ def main() -> int:
     from core.jev_engine import JevEngine, pad_shared_default
     from run_bench_ar import ar_baseline, map_schema_to_questions
 
-    from core.jev_engine import MODEL_PATH as MODEL
+    from core.jev_engine import MODEL_PATH as MODEL, require_model
+
+    require_model()
     tokenizer = AutoTokenizer.from_pretrained(MODEL)
     print("loading vLLM ...", flush=True)
     mnbt = int(os.environ.get("MNBT", "8192"))

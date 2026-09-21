@@ -46,8 +46,8 @@ def ar_baseline(llm, tok, context: str, schema: dict) -> dict:
         else:
             # FULL option list, no truncation: the engine reads every criteria
             # description (8448-token catalog on tariff) -- a truncated AR
-            # prompt made AR look 3x faster than it really is (Biscuit catch:
-            # 842ms is impossible for a真 8448-token prefill at 4-5K tok/s).
+            # prompt made AR look 3x faster than it really is: 842 ms is
+            # impossible for a true 8448-token prefill at 4-5K tok/s.
             ch = field.get("choices", [])
             cs = " | ".join(f'"{c}"' for c in ch)
             lines.append(f'  "{name}": {cs}, // {field.get("description", "")}')
@@ -97,7 +97,9 @@ def main() -> int:
 
     from core.jev_engine import JevEngine
 
-    from core.jev_engine import MODEL_PATH as MODEL
+    from core.jev_engine import MODEL_PATH as MODEL, require_model
+
+    require_model()
     tokenizer = AutoTokenizer.from_pretrained(MODEL)
     print("loading vLLM ...", flush=True)
     import os

@@ -17,7 +17,9 @@ def main() -> int:
 
     from core.jev_engine import JevEngine, pad_shared_default
 
-    from core.jev_engine import MODEL_PATH as MODEL
+    from core.jev_engine import MODEL_PATH as MODEL, require_model
+
+    require_model()
     tokenizer = AutoTokenizer.from_pretrained(MODEL)
     print("loading vLLM ...", flush=True)
     llm = LLM(model=MODEL, max_model_len=16384, gpu_memory_utilization=0.85,

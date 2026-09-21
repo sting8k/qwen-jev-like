@@ -1,4 +1,4 @@
-"""Phase 3 H5+H6 builder — Biscuit sign-offs 19:37 + 19:39 UTC 2026-09-18.
+"""Phase 3 H5+H6 builder.
 
 H5  data/calib/h5/paysim_textualized.jsonl — 400 rows (200 fraud / 200 legit,
     stratified from ~0.13% base rate), deterministic template over
@@ -108,7 +108,7 @@ def build_paysim():
             "question_key": "is_fraud",
             "question_desc": "Was this transaction fraudulent (simulator ground truth)",
             "label": row["isFraud"] == "1",
-            "label_source": "simulated",  # isFraud assigned by simulator rules (Biscuit 20:20)
+            "label_source": "simulated",  # isFraud assigned by simulator rules
             "lang": "en",
             "split_hint": None,
             "stratified": True,
@@ -195,8 +195,8 @@ def build_arc_probes():
 
 
 def build_label_name_v2():
-    """v2 (Biscuit 20:23): state carries the full A->content mapping, same order
-    as permutation perm_id=0; new filename, old file stays frozen on disk."""
+    """State carries the full A->content mapping, in the same order as
+    permutation perm_id=0."""
     print("[arc] label_name v2 ...")
     qs = _arc_pool()
     rows = []

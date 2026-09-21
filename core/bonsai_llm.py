@@ -43,7 +43,8 @@ FORK_LIB = os.path.join(REPO, "backends", "llamacpp", "llama.cpp-prism", "build"
 SLOTS = 4
 
 
-DEFAULT_GGUF = "/home/bean/Develope/Bonsai/models/Ternary-Bonsai-2-27B-PQ2_0.gguf"
+DEFAULT_GGUF = os.environ.get(
+    "JEV_BONSAI_GGUF", "models/Ternary-Bonsai-2-27B-PQ2_0.gguf")
 
 
 def from_env(**overrides):

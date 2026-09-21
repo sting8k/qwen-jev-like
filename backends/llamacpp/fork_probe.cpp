@@ -8,7 +8,7 @@
 //     llama_memory_seq_cp(0 -> 1..N)          <- fork at the boundary, no rollback
 //     one llama_batch: N different suffixes, one per seq
 //
-// Pre-registered pass criteria (written before the run, Biscuit + Pooh):
+// Pre-registered pass criteria, written before the run:
 //   1. tokens processed ~= len(catalog) + sum(len(suffix)), not N * len(prompt)
 //   2. control: the same suffixes decoded WITHOUT fork must give the same logits
 //      -- max |d log p| over the candidate set ~ 0. Fast with a wrong state is
@@ -16,8 +16,8 @@
 //   3. determinism: forking twice gives the same numbers.
 // Fails any of them -> stop, report, do not build a backend.
 //
-// Dax, while re-checking his own batch-invariance gate, found the trap this
-// probe would otherwise walk into: the FIRST run of any given batch shape
+// A trap this probe would otherwise walk into, found while re-checking a
+// batch-invariance gate: the FIRST run of any given batch shape
 // differs from every later run. Comparing fork-run-1 against control-run-1
 // cannot tell "fork carries a wrong state" apart from "first run of a new
 // shape". So each branch runs TWICE and the verdict uses the SECOND runs;
@@ -26,14 +26,14 @@
 // THIRD ARM (added after the CPU dry run): fork and the sequential control
 // differ in TWO ways at once -- fork forks, and fork puts 8 sequences in one
 // batch while the control decodes one prompt at a time. The observed gap
-// (0.245 log p) is the same order as the batched-vs-single gap Dax measured on
+// (0.245 log p) is the same order as the batched-vs-single gap measured on
 // vLLM (0.2425), so "seq_cp lost the recurrent state" and "batching changes the
 // arithmetic" both predict it. Arm C decodes the 8 FULL prompts in ONE batch,
 // no fork. Then:
 //     C vs B  = batching effect alone (both full decodes)
 //     A vs C  = fork effect, but the batch sizes still differ (749 vs 2517)
 //
-// FOURTH/FIFTH ARM (Biscuit): the clean isolation I wrongly called impossible.
+// FOURTH/FIFTH ARM: the clean isolation.
 //     A'' : decode catalog in seq 0, seq_cp 0->1, decode ONE suffix in seq 1
 //     B'' : decode catalog in seq 1, then decode the SAME suffix in seq 1
 // Two consecutive decodes of identical sizes in both arms, single sequence,
@@ -323,14 +323,14 @@ int main(int argc, char ** argv) {
     printf("\nspeedup fork vs sequential full : %.2fx\n", t_ctl / (t_prefix + t_batch));
     printf("speedup fork vs batched  full   : %.2fx\n", t_bat / (t_prefix + t_batch));
 
-    // Cross-SESSION determinism: vLLM's batched path fails this (Dax: two
+    // Cross-SESSION determinism: vLLM's batched path fails this (two
     // identical warm batched runs matched on 29/307 options, max 0.2425) and
     // VLLM_BATCH_INVARIANT=1 is refused for GDN_ATTN, so there is currently no
     // reproducible batched path on vLLM at all. If llama.cpp's fork is stable
     // across processes that matters more than the speedup. Diff these lines
     // between two separate runs of this binary.
-    // Dax's lesson from his own permutation bug: when a run produces several
-    // variants of the same thing, the strongest check lives INSIDE the result --
+    // When a run produces several variants of the same thing, the strongest
+    // check lives INSIDE the result --
     // assert the variants differ. If two sequences came back identical, the batch
     // is reading one sequence's logits for several outputs, or seq_cp overwrote a
     // neighbour. Every comparison above would still look perfect in that case.
