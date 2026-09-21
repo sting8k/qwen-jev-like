@@ -69,6 +69,16 @@ human-labelled".
 
 ## 4. The CPU gate must pass in a fresh clone
 
+There is no CI in this repository: the gate is a command a person runs, not a
+badge. That places one cost on whoever runs it — `pip install vllm`, about
+2.5 GB — because `core/jev_engine.py` imports `SamplingParams` at module scope,
+so the engine cannot be imported without vLLM even on a CPU-only run and even
+when the selected backend is llama.cpp. Moving that construction behind the
+backend boundary would remove the dependency for every CPU consumer. It is a
+change to the engine that produced the published numbers, so it is not part of
+this packaging work.
+
+
 ```sh
 python -m tests.test_cpu
 ```
