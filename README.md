@@ -120,8 +120,9 @@ What worked:
 
 What did not:
 
-- Neither quantisation wins. Over six sets the ternary QAT model won one, the Q2_K_XL post-training quant won one, and four were ties inside
-  the confidence interval. Any single set on its own would have told a different story.
+- Neither quantisation wins. One measurement says the ternary QAT model is better, one says the 2-bit post-training
+  file is, and every other confidence interval contains zero. Any single one of them, run on its own, would have told
+  a different story.
 - On CVSS metric prediction the column closest to Jev was also the column furthest from NIST. Agreeing with Jev is
   not the same as being right.
 - How you phrase the question moves results more than which model you use. On `typesafe-ai-benchmark` the scoring

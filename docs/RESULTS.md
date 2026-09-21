@@ -170,6 +170,9 @@ while printing the wrong number on it.
 Same question asked five ways: is quantisation-aware training required for this
 contract? The answer depends on which set you look at, which is the result.
 
+The table has seven rows for those five measurements: nvd2023_v2 contributes a
+`choice` row and a `score` row, and the two long catalogues came from one run.
+
 | set | n | Ternary-Bonsai-2-27B | Qwen3.8-27B UD-Q2_K_XL | Δ (PTQ − QAT), CI95 | verdict |
 |---|---|---|---|---|---|
 | emotion, h7 | 2000 | 0.5980 | 0.5605 | −0.0375 [−0.0525, −0.0220] | **QAT better, CI excludes 0** |
