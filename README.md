@@ -64,12 +64,10 @@ not checked.
 
 A fair spread of tasks: intent classification (Banking77), emotion labels, CVE attribute classification, CVSS v3.1
 metric prediction, bug-report classification, the public `typesafe-ai-benchmark`, the four Cloudflare example cases,
-and two small interactive scenarios I wrote myself. The security-flavoured sets reflect a personal interest of the
-author; they are used as classification tasks with human labels, nothing more is claimed.
+and two small interactive scenarios I wrote myself. The security-flavoured sets are there because I find that area
+interesting; they are used as classification tasks with human labels, nothing more is claimed.
 
 ## The short version
-
-Numbers a person deciding whether to try this would ask about first.
 
 Everything below ran on one desktop:
 
@@ -80,8 +78,6 @@ Everything below ran on one desktop:
 | RAM | 32 GB, of which WSL2 is given 25 GB |
 | OS | Windows host, Ubuntu 22.04 under WSL2 (kernel 5.15) |
 | Stack | Python 3.12, vLLM 0.29, torch 2.13 + CUDA 13.0; llama.cpp fork built against CUDA 13.4 |
-
-Windows and a browser were open during every run. Timings are wall clock as the engine saw them, not isolated.
 
 | | Ternary-Bonsai-2-27B PQ2_0 | Qwen3.8-27B UD-Q2_K_XL |
 |---|---|---|
@@ -110,7 +106,7 @@ single question with 255 options, where the text path only has to write one shor
 same full prompt and took about 4 s on Qwen3.5-9B-AWQ; its output failed schema validation on every one of 24 attempts.
 The typed path cannot produce an invalid answer.
 
-What they got right, in plain words:
+What worked:
 
 - On Banking77 (77 intents, human labels) Ternary-Bonsai-2-27B lands at 0.760, Qwen3.5-9B-AWQ at 0.731, and Jev 1.13 at 0.760 to 0.803
   depending on who measured it. Same band.
@@ -122,7 +118,7 @@ What they got right, in plain words:
 - On the two scenario benches, Ternary-Bonsai-2-27B and Qwen3.8-27B UD-Q2_K_XL are the first models to pass all three pre-registered
   criteria; Qwen3.5-9B-AWQ and Qwen3.5-4B-AWQ did not.
 
-What did not work, equally plainly:
+What did not:
 
 - Neither quantisation wins. Over six sets the ternary QAT model won one, the Q2_K_XL post-training quant won one, and four were ties inside
   the confidence interval. Any single set on its own would have told a different story.
@@ -214,12 +210,12 @@ What comes back, with the shapes the three question types actually return:
  "_engine": {"elapsed_ms": ..., "per_question": {...}}}
 ```
 
-A `noul` answer is a single probability of true — there is no separate label to pick. `choice` and `score` carry a
+A `noul` answer is a single probability of true; there is no separate label to pick. `choice` and `score` carry a
 probability for every option; `score` also returns the expected level and the legend it was computed over, so a
 `score` of 1.13 means "just past medium, leaning high" rather than naming a class.
 
 The diagnostics live under `_engine.per_question`, not next to the answers: `in_set_mass` is how much of the model's
-probability landed on the options you gave, and `low_evidence` is set when that drops under 0.5 — which in practice
+probability landed on the options you gave, and `low_evidence` is set when that drops under 0.5, which in practice
 means the prompt or the formatting is broken, not that the question was hard.
 
 The first call on a new set of questions costs about 1.3 s while the catalogue is encoded. Every later call with the
@@ -275,14 +271,13 @@ prompt per option. `docs/METHODS.md` walks through them and the bug each one was
 
 ### Model files
 
-Not included. `docs/MODELS.md` lists the exact checkpoints and their digests, and says how far each was actually
-checked — two were verified against the digest the Hub publishes, one shard of a third was, and two were not hashed
-at all. The `n_seq_max` and `ctx` a bench ran at belong to the bench, so they are in `docs/RESULTS.md` next to the
-numbers they produced.
+Not included. `docs/MODELS.md` lists the exact checkpoints, their digests, and how far each file was actually
+checked, which is not the same for all of them. The `n_seq_max` and `ctx` a bench ran at belong to the bench, so
+they are in `docs/RESULTS.md` next to the numbers they produced.
 
 ## Data
 
-**No dataset rows are in this repository at all** — the count of `.jsonl` files under `data/` is zero, and that is
+No dataset rows are in this repository at all: the count of `.jsonl` files under `data/` is zero, and that is
 deliberate rather than an oversight about which sets were redistributable. Every set ships as a builder script plus
 the sha256 of the file it produces, so anyone can rebuild the exact rows and check they got the same ones. Some of
 these licences permit measurement but not redistribution (the emotion set, the CVSS set at CC-BY-NC-SA), one corpus
