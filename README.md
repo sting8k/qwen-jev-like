@@ -89,14 +89,14 @@ Everything below ran on one desktop:
 | | Ternary-Bonsai-2-27B PQ2_0 | Qwen3.8-27B UD-Q2_K_XL |
 |---|---|---|
 | file size | 6.7 GB | 9.2 GB |
-| VRAM resident after load | 15.7 GB | not measured |
-| load time | 11.1 s | not measured |
-| first call, new catalogue | 1.3 s | not measured |
-| repeat call, same catalogue, new state | ~290 ms median | ~560 ms median |
+| weights on GPU | 6540 MiB | 8631 MiB |
+| repeat call, same catalogue, new state | 88 ms median | 102 ms median |
+| 2000-row collect, wall clock | 187 s | 218 s |
 | byte-identical across two processes | yes | yes |
 
-Both run alongside a desktop session. The three Ternary-Bonsai rows come from `runs/bonsai_prod2.log`, which did not
-record the batch shape, so they are not comparable to the configured tables in [docs/RESULTS.md](docs/RESULTS.md).
+Fork backend, `PAD=0`, `ctx/seq=2048`, `n_seq_max=13`, 4 catalogue slots, `n_ubatch=1024`, T=1, one state per call,
+alongside a desktop session. Resident VRAM is not listed: WSL2 does not report per-process GPU memory, so the only
+figure available counts the desktop too.
 
 Same model, two ways of asking. Qwen3.5-9B-AWQ on vLLM, warm, same full prompt for both sides:
 
@@ -214,7 +214,8 @@ What comes back, with the shapes the three question types actually return:
 - `score` also returns the expected level and its legend, so 1.13 is a position, not a class id.
 - Diagnostics sit under `_engine.per_question`: `in_set_mass`, and `low_evidence` when it drops under 0.5.
 
-A new question set costs about 1.3 s to encode; later calls reusing it come back in roughly 300 ms.
+The first call on a question set pays to encode its catalogue; later calls reusing it come back in about
+100 ms on either 27B file. Measured cost depends on how many options the catalogue holds.
 
 ### Running the benches
 
