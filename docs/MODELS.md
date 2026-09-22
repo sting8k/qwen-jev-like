@@ -25,23 +25,24 @@ fd4730dd8aad070517978752b63d530aeb1740d2283cab9fa24f1e404032ddb0  Qwen3.8-27B-UD
   the file that repository serves.
 - **Qwen3.5-9B-AWQ** was fetched through a ModelScope mirror (`tclf90/Qwen3.5-9B-AWQ`, the
   checkout's own `.msc` metadata records it), so the Hub link above needed
-  checking rather than assuming. Shard 5 of 5 hashes identically to the LFS
-  digest `QuantTrio/Qwen3.5-9B-AWQ` publishes, which is why that link is here.
-  The other four shards were not checked.
+  checking rather than assuming. All five shards hash identically to the LFS
+  digests `QuantTrio/Qwen3.5-9B-AWQ` publishes, which is why that link is here.
+  Four of them were checked later than shard five, on 2026-09-22.
 - **Ternary-Bonsai-2-27B PQ2_0** was checked the same way, against
   `prism-ml/Ternary-Bonsai-2-27B-gguf`: 7,206,168,928 bytes and the digest
   above, equal to what the Hub records for that file. Note the **2** in the
   name. `prism-ml/Ternary-Bonsai-27B-gguf` is a different model on a different
   base and also publishes a `PQ2_0.gguf`, and comparing against that one makes
   this byte-identical file look 41 MB wrong.
-- **Qwen3.5-4B-AWQ** and **Ornith-1.5-9B-AWQ-INT4** were not hashed. Their repositories are named above and
-  were confirmed to exist; that is all.
+- **Qwen3.5-4B-AWQ** and **Ornith-1.5-9B-AWQ-INT4** were hashed on 2026-09-22, later than the rest. All four
+  weight files across the two repositories match `cyankiwi/Qwen3.5-4B-AWQ-4bit` and
+  `cyankiwi/Ornith-1.5-9B-AWQ-INT4` by size and by LFS sha256.
 
-Every column whose digest was checked reproduces from a download of the exact
-file that was measured. The two that were not checked are named above rather
-than left out: a digest that has not been computed is not evidence of anything,
-and a section that lists only its successes reads as though it covered
-everything.
+Every column here now reproduces from a download of the exact file that was
+measured. That was not true when this section was first written, and the two
+unchecked entries were named at the time rather than left out: a digest that has
+not been computed is not evidence of anything, and a section that lists only its
+successes reads as though it covered everything.
 
 ## Licences
 
