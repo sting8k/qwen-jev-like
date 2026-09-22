@@ -1,20 +1,19 @@
 # qwen-jev-like
 
-A for-fun project. I wanted to know what happens if you take a Jev-shaped contract (`state` in, typed answers out, no
-text generation) and run it against open models on one consumer GPU. This repo is the engine, the pipeline, and the
-numbers that came out of a few weeks of poking at it.
+A for-fun project: take a Jev-shaped contract (`state` in, typed answers out, no text generation) and run it
+against open models on one consumer GPU.
 
-Most of the code and measurements were produced by AI coding agents; I set the scope and decided what got published.
-Everything here can be checked without taking my word for it.
-
-This is not Jev. It is an attempt to see how close open models get to the same contract on one GPU. Jev appears as
-one column in the tables, measured through OpenRouter on the dates noted, the same way any other model does.
+- **Not Jev.** Jev 1.13 is one column in the tables, measured through OpenRouter like any other model.
+- **Built by agents.** Most code and measurements came from AI coding agents; I set scope and published.
+- **Checkable.** Every number states its configuration and the run it came from.
 
 ## Where the idea came from
 
 Jev (TypeSafe) is closed. [harshatheg](https://github.com/harshatheg) reproduced the idea on a 1B Qwen the same
-night: score the options from the logits, never decode. This started as a port of that; the tree became a trie.
-Calibration protocol from [jevlike](https://github.com/vinnylarouge/jevlike). Full list under References.
+night: score the options from the logits, never decode.
+
+This is a port of that with the tree replaced by a trie, plus the calibration protocol from
+[jevlike](https://github.com/vinnylarouge/jevlike).
 
 ## What it does
 
@@ -62,10 +61,18 @@ not checked.
 
 ## What I tried
 
-A fair spread of tasks: intent classification (Banking77), emotion labels, CVE attribute classification, CVSS v3.1
-metric prediction, bug-report classification, the public `typesafe-ai-benchmark`, the four Cloudflare example cases,
-and two small interactive scenarios I wrote myself. The security-flavoured sets are there because I find that area
-interesting; they are used as classification tasks with human labels, nothing more is claimed.
+| task | source |
+|---|---|
+| intent classification | Banking77, 77 intents |
+| emotion labels | 6-way, n=2000 |
+| CVE attribute classification | NVD 2023 |
+| CVSS v3.1 metric prediction | CTI-Bench, 300 CVEs |
+| bug-report classification | 12 weakness families, 300 reports |
+| typed-decision replay | `typesafe-ai-benchmark`, 1257 questions |
+| direction check | 4 Cloudflare example cases |
+| interactive scenarios | 3 benches, two of them mine |
+
+The security sets are there because I find that area interesting. They are classification tasks with human labels.
 
 ## The short version
 
@@ -82,14 +89,14 @@ Everything below ran on one desktop:
 | | Ternary-Bonsai-2-27B PQ2_0 | Qwen3.8-27B UD-Q2_K_XL |
 |---|---|---|
 | file size | 6.7 GB | 9.2 GB |
+| VRAM resident after load | 15.7 GB | not measured |
+| load time | 11.1 s | not measured |
+| first call, new catalogue | 1.3 s | not measured |
 | repeat call, same catalogue, new state | ~290 ms median | ~560 ms median |
-| deterministic across two processes | yes, byte-identical | yes, byte-identical |
+| byte-identical across two processes | yes | yes |
 
-On Ternary-Bonsai-2-27B with `n_ubatch=4096` and 12 sequences the process holds about 15.7 GB of VRAM in total, loads in 11 s, and
-the first call on a new catalogue takes 1.3 s. The Qwen3.8-27B UD-Q2_K_XL column was measured at a smaller batch shape, so its resident
-VRAM and cold-call numbers are not comparable and live in `docs/RESULTS.md` with their configuration.
-
-Both run alongside a desktop session.
+Both run alongside a desktop session. The three Ternary-Bonsai rows come from `runs/bonsai_prod2.log`, which did not
+record the batch shape, so they are not comparable to the configured tables in [docs/RESULTS.md](docs/RESULTS.md).
 
 Same model, two ways of asking. Qwen3.5-9B-AWQ on vLLM, warm, same full prompt for both sides:
 
@@ -100,35 +107,25 @@ Same model, two ways of asking. Qwen3.5-9B-AWQ on vLLM, warm, same full prompt f
 | support_triage | 28 | 446 ms | 9.1x | |
 | tariff_255 | 1 field, 255 options | 543 ms | 1.7x | |
 
-The typed path costs about the same whether a state has 4 questions or 28, because every option is scored in one
-forward pass. The text path grows with the length of the answer it has to write. The one place the gap closes is a
-single question with 255 options, where the text path only has to write one short label. The text baseline saw the
-same full prompt and took about 4 s on Qwen3.5-9B-AWQ; its output failed schema validation on every one of 24 attempts.
-The typed path cannot produce an invalid answer.
+Cost is flat in the number of questions because all options score in one pass. The text baseline saw the same
+prompt, took about 4 s, and failed schema validation 24/24.
 
 What worked:
 
-- On Banking77 (77 intents, human labels) Ternary-Bonsai-2-27B lands at 0.760, Qwen3.5-9B-AWQ at 0.731, and Jev 1.13 at 0.760 to 0.803
-  depending on who measured it. Same band.
-- On the public `typesafe-ai-benchmark` the local models agree with Jev's direction on 92 to 93 % of items.
-- On a 6-way emotion set Ternary-Bonsai-2-27B reaches 0.60 (n=2000). The only published Jev number on the same set is 0.48, from a
-  100-item sample; the labels are noisy, so both numbers sit under a low ceiling.
-- On bug-report classification (12 weakness families) all three columns sit at 0.64 to 0.67 against a 0.15 majority
-  class, and all three know when they are unsure: dropping the 20 % least confident answers adds 6 to 10 points.
-- On the two scenario benches, Ternary-Bonsai-2-27B and Qwen3.8-27B UD-Q2_K_XL are the first models to pass all three pre-registered
-  criteria; Qwen3.5-9B-AWQ and Qwen3.5-4B-AWQ did not.
+- **0.760 / 0.731 / 0.760-0.803** on Banking77: ternary, Qwen3.5-9B-AWQ, Jev. Same band.
+- **92-93 %** direction agreement with Jev on `typesafe-ai-benchmark`.
+- **0.60** on 6-way emotion, n=2000. The one published Jev number there is 0.48 at n=100, noisy labels.
+- **0.64-0.67** on bug-report classification against a 0.15 majority, all three columns.
+- **+6 to +10 points** from dropping the least-confident 20 %, in every column.
+- **3/3** pre-registered criteria on the scenario benches for both 27B files; the AWQ columns did not.
 
 What did not:
 
-- Neither quantisation wins. One measurement says the ternary QAT model is better, one says the 2-bit post-training
-  file is, and every other confidence interval contains zero. Any single one of them, run on its own, would have told
-  a different story.
-- On CVSS metric prediction the column closest to Jev was also the column furthest from NIST. Agreeing with Jev is
-  not the same as being right.
-- How you phrase the question moves results more than which model you use. On `typesafe-ai-benchmark` the scoring
-  task went from 70 to 94 by changing wording and how the state was packed, with the model unchanged.
-- The `confidence` a model reports is a property of its output distribution, not the probability it is right. All
-  three columns are worst in the 0.6 to 0.8 confidence bin, where they claim 0.70 and are right 0.35 to 0.44 of the time.
+- **1 for, 1 against, rest contain zero**: no quantisation wins across the comparisons.
+- **Closest to Jev was furthest from NIST** on CVSS. Agreeing with Jev is not being right.
+- **70 to 94** on one task from wording and state packing alone, model unchanged.
+- **0.70 claimed, 0.35-0.44 actual** in the 0.6-0.8 confidence bin, all three columns.
+- **0/3** for Qwen3.8-27B on a 5-step browser task that Jev completes 3/3.
 
 ## Quickstart
 
@@ -150,8 +147,8 @@ ran 64 checks: 64 ok, 0 failed, 1 skipped
 ALL PASS
 ```
 
-The skip is a check whose dataset this repo does not ship; it prints the reason and the builder that recreates it.
-Skips are counted separately and never folded into the pass count. vLLM is not needed for any of this.
+The skip is a check whose dataset this repo does not ship, counted separately and never folded into the pass count.
+vLLM is not needed here.
 
 ### 2. Get a model
 
@@ -163,9 +160,10 @@ Pick one. Both fit on a 24 GB card next to a desktop session.
 | Qwen3.8-27B UD-Q2_K_XL (Unsloth) | `Qwen3.8-27B-UD-Q2_K_XL.gguf` | 9.2 GB | same |
 | Qwen3.5-9B-AWQ | QuantTrio HF checkpoint | 12 GB | vLLM 0.29 |
 
-`docs/MODELS.md` has the download source and sha256 for each. Point the engine at the GGUF with
-`JEV_BONSAI_GGUF=/path/to/file.gguf` and set `JEV_BACKEND=bonsai`. Building the fork worker takes one `make` in
-`backends/llamacpp/`; the README there covers the CUDA toolkit trap on WSL2.
+Download source and sha256 per file: [docs/MODELS.md](docs/MODELS.md).
+
+- Point the engine at a GGUF: `JEV_BONSAI_GGUF=/path/to/file.gguf`, `JEV_BACKEND=bonsai`.
+- Build the fork worker: one `make` in `backends/llamacpp/`, whose README covers the CUDA trap on WSL2.
 
 ### 3. Ask a question
 
@@ -211,16 +209,12 @@ What comes back, with the shapes the three question types actually return:
  "_engine": {"elapsed_ms": ..., "per_question": {...}}}
 ```
 
-A `noul` answer is a single probability of true; there is no separate label to pick. `choice` and `score` carry a
-probability for every option; `score` also returns the expected level and the legend it was computed over, so a
-`score` of 1.13 means "just past medium, leaning high" rather than naming a class.
+- `noul`: one probability of true, no label to pick.
+- `choice` and `score`: a probability for every option.
+- `score` also returns the expected level and its legend, so 1.13 is a position, not a class id.
+- Diagnostics sit under `_engine.per_question`: `in_set_mass`, and `low_evidence` when it drops under 0.5.
 
-The diagnostics live under `_engine.per_question`, not next to the answers: `in_set_mass` is how much of the model's
-probability landed on the options you gave, and `low_evidence` is set when that drops under 0.5, which in practice
-means the prompt or the formatting is broken, not that the question was hard.
-
-The first call on a new set of questions costs about 1.3 s while the catalogue is encoded. Every later call with the
-same questions and a new state reuses that work and comes back in roughly 300 ms on Ternary-Bonsai-2-27B.
+A new question set costs about 1.3 s to encode; later calls reusing it come back in roughly 300 ms.
 
 ### Running the benches
 
@@ -241,12 +235,17 @@ can check it against `docs/RESULTS.md`.
 
 ### Method
 
-Protocol was written before any number was taken: FIT 60 / SELECT 20 / TEST 20 splits, temperature scaling only
-(no fine-tuning, no LLM-generated labels), pass and fail thresholds fixed in advance. Every table states the backend,
-`PAD`, context, `n_seq_max`, batch size, and T that produced it, because changing any of these changes the logits.
-Accuracy is always printed next to the majority-class rate. Score accuracy comes in two flavours, within one level
-and exact, and every table names which. Anything under n=50 is called a signal, never a result. Details in
-`docs/METHODS.md`.
+Written before any number was taken:
+
+- Splits FIT 60 / SELECT 20 / TEST 20, grouped so one state cannot straddle two splits.
+- Temperature scaling only. No fine-tuning, no model-generated labels.
+- Pass and fail thresholds fixed in advance.
+- Every table states backend, `PAD`, context, `n_seq_max`, batch size and T.
+- Accuracy always printed next to the majority-class rate.
+- Score accuracy has two measures, within one level and exact; each table names its own.
+- Under n=50 is a signal, never a result.
+
+Full protocol in [docs/METHODS.md](docs/METHODS.md).
 
 ### Results
 
@@ -268,39 +267,67 @@ Sections there:
 
 ### Engine
 
-`core/jev_engine.py`. Eight invariants, each with an assert or a test: scored tokens appear verbatim in the
-catalogue; prompt order is fixed so the catalogue block hashes identically across states; one `generate()` per state;
-options are scored through a shared trie so the state is encoded once; window encoding never re-encodes the full
-prompt per option. `docs/METHODS.md` walks through them and the bug each one was added after.
+`core/jev_engine.py`, eight invariants, each with an assert or a test:
+
+- Scored tokens appear verbatim in the catalogue.
+- Prompt order is fixed, so the catalogue hashes identically across states.
+- One `generate()` per state.
+- Options score through a shared trie, so the state is encoded once.
+- Window encoding never re-encodes the full prompt per option.
+
+All eight, and the bug behind each, in [docs/METHODS.md](docs/METHODS.md).
 
 ### Model files
 
-Not included. `docs/MODELS.md` lists the exact checkpoints, their digests, and how far each file was actually
-checked, which is not the same for all of them. The `n_seq_max` and `ctx` a bench ran at belong to the bench, so
-they are in `docs/RESULTS.md` next to the numbers they produced.
+Not included. [docs/MODELS.md](docs/MODELS.md) has the checkpoints, digests, and how far each file was checked,
+which differs per file.
 
 ## Data
 
-No dataset rows are in this repository at all: the count of `.jsonl` files under `data/` is zero, and that is
-deliberate rather than an oversight about which sets were redistributable. Every set ships as a builder script plus
-the sha256 of the file it produces, so anyone can rebuild the exact rows and check they got the same ones. Some of
-these licences permit measurement but not redistribution (the emotion set, the CVSS set at CC-BY-NC-SA), one corpus
-belongs to the people who wrote it (the bug reports), and that corpus contains live credentials in its text.
-`data/calib/*/README.md` gives each set's source, licence, label provenance, rebuild command, digest, and the caveat
-that changes how its numbers should be read. `data/README.md` is the index.
+No dataset rows are here: zero `.jsonl` files under `data/`. Every set ships as a builder plus the sha256 of what it
+produces.
+
+| set | licence | why it is not shipped |
+|---|---|---|
+| Banking77, CLINC150, BoolQ, SciTail, PubMedQA | CC-BY / Apache-2.0 / MIT | rebuilt for consistency, not licence |
+| emotion | card says `other`, research use | no redistribution |
+| CVSS metrics (CTI-Bench) | CC-BY-NC-SA-4.0 | non-commercial |
+| bug reports | belong to their finders | that, and live credentials in the text |
+| PaySim transactions | CC-BY-SA-4.0 | needs a Kaggle token |
+
+Per-set source, label provenance, rebuild command, digest and caveat: `data/calib/*/README.md`, indexed by
+[data/README.md](data/README.md).
 
 ## References
 
-Models: Ternary-Bonsai-2-27B (prism-ml), Qwen3.8-27B UD-Q2_K_XL (Unsloth), Qwen3.5-9B-AWQ (QuantTrio) and
-Qwen3.5-4B-AWQ (cyankiwi), both from Alibaba's Qwen3.5; Jev 1.13 (TypeSafe, via OpenRouter).
+**Models**
 
-Data: Banking77 (PolyAI, CC-BY-4.0), Emotion (dair-ai), CTI-Bench (Alam et al., CC-BY-NC-SA), NVD/CVE, HackerOne
-disclosed reports, `typesafe-ai-benchmark`, Cloudflare Jev examples.
+- [prism-ml/Ternary-Bonsai-2-27B-gguf](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf), the ternary QAT file.
+- [unsloth/Qwen3.8-27B-GGUF](https://huggingface.co/unsloth/Qwen3.8-27B-GGUF), the 2-bit post-training comparison.
+- [QuantTrio/Qwen3.5-9B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-9B-AWQ), the vLLM column and speed baseline.
+- [cyankiwi/Qwen3.5-4B-AWQ-4bit](https://huggingface.co/cyankiwi/Qwen3.5-4B-AWQ-4bit), the small-model check.
+- Jev 1.13 (TypeSafe), reached through [OpenRouter](https://openrouter.ai), the hosted reference.
 
-Prior work this leans on: harshatheg's Qwen-2.5-1B-RLCD (the presets and the first port), vinnylarouge/jevlike (the
-ECE protocol), AbdelStark/jev-benchmarks (the pre-registered Emotion number), nibzard/decision-model-benchmark (the
-"builder, not text" posture for non-commercial data), Aitejiu/jev-harness-lab and onlyoneaman/jev-eval (independent
-Jev numbers on Banking77), KaLM-Embedding/KaLM-Jev (a reranker take on the same contract), and Bernoulli's write-up
-of Jev's confidence formula.
+**Data**
+
+- [PolyAI/banking77](https://huggingface.co/datasets/PolyAI/banking77), intents with human labels.
+- [dair-ai/emotion](https://huggingface.co/datasets/dair-ai/emotion), the largest single set here.
+- [AI4Sec/cti-bench](https://huggingface.co/datasets/AI4Sec/cti-bench), CVSS metric prediction.
+- [NVD](https://nvd.nist.gov), the CVE feed behind the attribute and CVSS labels.
+- [HackerOne Hacktivity](https://hackerone.com/hacktivity), disclosed reports for the bug-report set.
+- [iammrduncan/typesafe-ai-benchmark](https://github.com/iammrduncan/typesafe-ai-benchmark), the replay harness.
+- Cloudflare's published Jev request and response examples, the direction oracle.
+
+**Prior work**
+
+- [harshatheg/Qwen-2.5-1B-RLCD](https://huggingface.co/harshatheg/Qwen-2.5-1B-RLCD), the presets and the first port.
+- [vinnylarouge/jevlike](https://github.com/vinnylarouge/jevlike), the ECE protocol.
+- [AbdelStark/jev-benchmarks](https://github.com/AbdelStark/jev-benchmarks), the pre-registered emotion number.
+- [nibzard/decision-model-benchmark](https://github.com/nibzard/decision-model-benchmark), builder-not-text for NC data.
+- [Aitejiu/jev-harness-lab](https://github.com/Aitejiu/jev-harness-lab) and
+  [onlyoneaman/jev-eval](https://github.com/onlyoneaman/jev-eval), independent Jev numbers on Banking77.
+- [browser-use/jev-ultrafast](https://github.com/browser-use/jev-ultrafast), the browser fixture in section 6b.
+- KaLM-Embedding/KaLM-Jev, a reranker take on the same contract.
+- [Bernoulli](https://bernoulli.app)'s write-up of Jev's confidence formula.
 
 MIT. See `CITATION.cff`.
