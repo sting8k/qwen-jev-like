@@ -88,21 +88,24 @@ Everything below ran on one desktop:
 
 | | Ternary-Bonsai-2-27B PQ2_0 | Qwen3.8-27B UD-Q2_K_XL |
 |---|---|---|
-| file size | 6.7 GB | 9.2 GB |
+| file on disk | 6872 MiB | 9374 MiB |
 | weights on GPU | 6540 MiB | 8631 MiB |
 | KV cache | 884 MiB | 884 MiB |
 | recurrent state | 1945 MiB | 1945 MiB |
 | compute buffer | 1054 MiB | 1014 MiB |
-| **GPU buffers, total** | **10.2 GB** | **12.2 GB** |
+| **GPU total** (weights + KV + state + compute) | **10 423 MiB** | **12 474 MiB** |
 | repeat call, same catalogue, new state | 88 ms median | 102 ms median |
 | 2000-row collect, wall clock | 187 s | 218 s |
 | byte-identical across two processes | yes | yes |
 
 Fork backend, `PAD=0`, `ctx/seq=2048`, `n_seq_max=13`, 4 catalogue slots, `n_ubatch=1024`, T=1, one state per call.
 
-`nvidia-smi` shows more than the total above, because that total is only what the allocator reserves: the CUDA
-context and the desktop session are on the same card. The KV cache also scales with context, reaching 1768 MiB at
-`ctx/seq=4096`, which is the shape the scenario benches use.
+One unit throughout so the column adds up: 10 423 MiB is 10.9 GB, and 12 474 MiB is 13.1 GB. The gap between the
+columns is 2051 MiB, which is 2091 MiB of weights less 40 MiB of compute buffer; KV and recurrent state are
+identical on both.
+
+`nvidia-smi` reads higher than the total: it also counts the CUDA context and the desktop session on the same card.
+The KV cache scales with context too, reaching 1768 MiB at `ctx/seq=4096`, the shape the scenario benches use.
 
 Same model, two ways of asking. Qwen3.5-9B-AWQ on vLLM, warm, same full prompt for both sides:
 

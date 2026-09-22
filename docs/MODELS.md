@@ -4,13 +4,13 @@ Five checkpoints appear in the results. Four are downloadable and are named by
 their exact repository; one is not, and says so rather than pointing at
 something that resembles it.
 
-| model | source | quantisation | on disk | backend |
+| model | source | quantisation | on disk (GiB, binary) | backend |
 |---|---|---|---|---|
-| **Ternary-Bonsai-2-27B PQ2_0** | [prism-ml/Ternary-Bonsai-2-27B-gguf](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf) → `Ternary-Bonsai-2-27B-PQ2_0.gguf` | ternary, ~1.7 bits/weight | 6.71 GB | llama.cpp fork |
-| **Qwen3.8-27B UD-Q2_K_XL** | [unsloth/Qwen3.8-27B-GGUF](https://huggingface.co/unsloth/Qwen3.8-27B-GGUF) | Q2_K_XL, ~2 bits/weight | 9.15 GB | llama.cpp fork |
-| **Qwen3.5-9B-AWQ** | [QuantTrio/Qwen3.5-9B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-9B-AWQ) | AWQ 4-bit | 12 GB | vLLM 0.29 |
-| **Qwen3.5-4B-AWQ** | [cyankiwi/Qwen3.5-4B-AWQ-4bit](https://huggingface.co/cyankiwi/Qwen3.5-4B-AWQ-4bit) | AWQ 4-bit | 3.8 GB | vLLM 0.29 |
-| **Ornith-1.5-9B-AWQ-INT4** | [cyankiwi/Ornith-1.5-9B-AWQ-INT4](https://huggingface.co/cyankiwi/Ornith-1.5-9B-AWQ-INT4) | INT4, compressed-tensors W4 group-32 asymmetric | 8.5 GB | vLLM 0.29 |
+| **Ternary-Bonsai-2-27B PQ2_0** | [prism-ml/Ternary-Bonsai-2-27B-gguf](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf) → `Ternary-Bonsai-2-27B-PQ2_0.gguf` | ternary, ~1.7 bits/weight | 6.71 GiB | llama.cpp fork |
+| **Qwen3.8-27B UD-Q2_K_XL** | [unsloth/Qwen3.8-27B-GGUF](https://huggingface.co/unsloth/Qwen3.8-27B-GGUF) | Q2_K_XL, ~2 bits/weight | 9.15 GiB | llama.cpp fork |
+| **Qwen3.5-9B-AWQ** | [QuantTrio/Qwen3.5-9B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-9B-AWQ) | AWQ 4-bit | 12 GiB | vLLM 0.29 |
+| **Qwen3.5-4B-AWQ** | [cyankiwi/Qwen3.5-4B-AWQ-4bit](https://huggingface.co/cyankiwi/Qwen3.5-4B-AWQ-4bit) | AWQ 4-bit | 3.8 GiB | vLLM 0.29 |
+| **Ornith-1.5-9B-AWQ-INT4** | [cyankiwi/Ornith-1.5-9B-AWQ-INT4](https://huggingface.co/cyankiwi/Ornith-1.5-9B-AWQ-INT4) | INT4, compressed-tensors W4 group-32 asymmetric | 8.5 GiB | vLLM 0.29 |
 
 ## Digests, and how far each was actually checked
 
