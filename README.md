@@ -260,7 +260,9 @@ Sections there:
 3. Calibration: ECE, Brier, selective accuracy, reliability diagrams, T per question type.
 4. QAT vs PTQ: per-set differences with CIs.
 5. Direction agreement with Jev on `typesafe-ai-benchmark` and the Cloudflare cases.
-6. Scenario benches: criteria and per-model verdicts (the scenarios themselves are not published).
+6. Scenario benches: criteria and per-model verdicts (the scenarios themselves are not published), plus a
+   5-step browser task from an external MIT fixture, where a sequence has to compose rather than one answer
+   be right.
 7. Determinism: byte-identity across processes on the llama.cpp fork, and the batch-shape effect on vLLM.
 8. Known limits: what is not shown, not calibrated, or waived.
 

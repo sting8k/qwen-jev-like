@@ -176,7 +176,7 @@ The table has seven rows for those five measurements: nvd2023_v2 contributes a
 | set | n | Ternary-Bonsai-2-27B | Qwen3.8-27B UD-Q2_K_XL | Δ (PTQ − QAT), CI95 | verdict |
 |---|---|---|---|---|---|
 | emotion, h7 | 2000 | 0.5980 | 0.5605 | −0.0375 [−0.0525, −0.0220] | **QAT better, CI excludes 0** |
-| scenario bench 2 | 39 turns | 3/3 criteria | 3/3, better on all three | | **PTQ better** |
+| scenario bench 2 | 39 turns | 3/3 criteria | 3/3, better on all three | | **post-training better** |
 | banking77 | 167 | 0.754 | 0.766 | +0.012 [−0.036, +0.060] | indistinguishable |
 | clinc150 | 124 | 0.903 | 0.895 | −0.008 [−0.032, +0.016] | indistinguishable |
 | nvd2023_v2, choice | 320 | 0.6875 | 0.6562 | −0.031 [−0.081, +0.022] | indistinguishable |
@@ -193,7 +193,8 @@ Nothing was forced: longest prompt 1056 tokens, widest trie 7 sequences. Run:
 slots, engine-fixed catalogue boundary. This is a different collect from the one
 in section 2, which is why that table reads 0.760 where this one reads 0.754.*
 
-One set says QAT, one says PTQ, four contain zero. **Run any one of them alone
+One set favours the ternary file, one favours the post-training file, the
+rest contain zero. **Run any one of them alone
 and that set becomes the answer.** A model can be the weaker classifier and the
 better-behaved system on the same afternoon, which is what the first two rows
 are.
@@ -303,6 +304,85 @@ the harness **after** these rows were taken, so re-running it today gives
 different choice values. On bench 1 the Ternary-Bonsai-2-27B plain-request row
 is 0.030 at T=1 and 0.065 with a borrowed T=1.30: temperature alone moves this
 bench by 2x, which is why every table here lists T.
+
+
+## 6b. Scenario bench 3: a 5-step browser form task from an MIT fixture
+
+The first two scenarios are mine and score single answers. This one is not mine
+and scores a sequence: it is the `forma` fixture from
+[browser-use/jev-ultrafast](https://github.com/browser-use/jev-ultrafast) (MIT),
+a static page with a destination search, two filters and a result list.
+
+The task is to search for stays in Lisbon, apply the Design and Free
+cancellation filters, then open a specific listing. It passes only if three hard
+asserts hold at the end: the URL, the page status, and a line on the page
+recording which filters were actually applied.
+
+Pipeline: their fixture and their executor are unchanged, the text helper is
+frozen to a fixed lookup so no second model is in the loop, and the only
+variable is which model decides the next action. On our side a protocol adapter
+runs on CPU and turns each page state into typed questions, one for the
+operation and one per possible target. **The adapter code is not in this
+repository** (it needs a resident server that is outside what this repo carries)
+and the decision traces are kept with the research work, so the runs are
+replayable from those rather than from here.
+
+| | asserts passed | agent actions | end to end | per decision |
+|---|---|---|---|---|
+| Jev 1.13 | 3/3, three runs | 5, same order every time | 4.42 / 4.55 / 5.04 s | 630 to 1120 ms, over the network |
+| Qwen3.8-27B UD-Q2_K_XL | 0/3, three runs | 2 | | 0.8 to 4.3 s, local |
+| Ternary-Bonsai-2-27B PQ2_0 | not run | | | |
+
+*n=3 per column. Both backends are deterministic and the probabilities repeat
+exactly, so more runs of the same task add nothing; more tasks would.*
+*Qwen3.8-27B: fork, `PAD=0`, `ctx/seq=4096`, `n_seq_max=13`, 4 slots,
+`n_ubatch=1024`, T=1. Jev 1.13: `typesafe/jev-1.13-20260917` over OpenRouter.*
+*Runs: `runs/browseruse_smoke_{jev,ptq}_{1,2,3}.log`, traces
+`runs/browseruse_trace_{jev,ptq}.jsonl`.*
+
+**The local per-decision latency is not comparable to anything else in this
+file.** Every step changes the page, so the catalogue changes with it and no
+prefix is reused; the cross-call cache the speed numbers in section 1 depend on
+cannot apply here.
+
+### What failed, and where
+
+The local column does not fail on format. `in_set_mass` runs 0.92 to 0.999 and
+`low_evidence` never fires, so the contract holds and the answers are inside the
+option set. It fails on which action to take.
+
+At step 1 the operation question splits CLICK 0.45 / TYPE_TEXT 0.29 / SELECT
+0.18, and the click target is the result card at 0.50. It clicks the listing
+directly. At step 2 `DONE` comes back at 0.95. The URL and status asserts pass;
+the filters line does not, because no filter was ever applied.
+
+The target questions are not the problem. Asked which option to select, it
+answers Design at 0.99 in every page state, and Free cancellation is always in
+the top two of the click question. Jev 1.13 on the same page states puts Find
+stays at 0.44 and 0.48 at step 2 and Free cancellation at 0.83 at step 4, which
+are exactly the two steps the local column skips.
+
+Handing it a prefix does not rescue it, and the measured pattern is narrow
+enough to state:
+
+| assisted | what it then did | result |
+|---|---|---|
+| 1 step, the typed destination | SELECT Design 0.91, CLICK Free cancellation 0.96, CLICK the listing 0.83, DONE 1.00 | 0/3: the form was never submitted, and the page only records filters on submit. Find stays never rose above 0.12 |
+| 2 steps, typed and submitted | SELECT Design 0.82, CLICK the listing 0.53 with Free cancellation at 0.43, DONE 0.92 | 0/3: the second filter was skipped |
+
+*Runs: `runs/browseruse_assist{1,2}_ptq.log`, trace
+`runs/browseruse_trace_ptq_assist.jsonl`. Both deterministic across repeats.*
+
+In every variant it drops exactly one required step, and in every variant
+`DONE` fires at 0.92 or above once the target listing is on screen. That is a
+pattern across five runs on one fixture, not a mechanism: one task cannot
+separate "prefers the visible result" from "misjudges this particular page", and
+nothing here tests that distinction.
+
+What this row supports is narrower than it looks. On single typed answers the
+two 27B files are close enough that four of five comparisons contain zero
+(section 4). On a task where the answers have to compose into a sequence, one of
+them finishes and the other does not, on one fixture, three times.
 
 ---
 
